@@ -1,3 +1,4 @@
+import { Text } from "@cloudflare/kumo";
 import { EventClient } from "@tanstack/devtools-event-client";
 import { useEffect, useState } from "react";
 
@@ -43,19 +44,19 @@ function DevtoolPanel() {
 	}, []);
 
 	return (
-		<div className="p-4 grid gap-4 grid-cols-[1fr_10fr]">
-			<div className="demo-muted whitespace-nowrap text-sm font-bold">
+		<div className="store-devtools">
+			<Text variant="secondary" size="sm" bold>
 				First Name
-			</div>
-			<div className="text-sm">{state?.firstName}</div>
-			<div className="demo-muted whitespace-nowrap text-sm font-bold">
+			</Text>
+			<Text size="sm">{state?.firstName}</Text>
+			<Text variant="secondary" size="sm" bold>
 				Last Name
-			</div>
-			<div className="text-sm">{state?.lastName}</div>
-			<div className="demo-muted whitespace-nowrap text-sm font-bold">
+			</Text>
+			<Text size="sm">{state?.lastName}</Text>
+			<Text variant="secondary" size="sm" bold>
 				Full Name
-			</div>
-			<div className="text-sm">{state?.fullName}</div>
+			</Text>
+			<Text size="sm">{state?.fullName}</Text>
 		</div>
 	);
 }

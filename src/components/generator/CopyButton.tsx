@@ -1,24 +1,27 @@
+import { Button } from "@cloudflare/kumo";
+import { CheckIcon, CopyIcon, WarningIcon } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
 
 interface CopyButtonProps {
 	/** Resolved lazily so the caller can hand over `window.location.href`. */
 	getText: () => string;
 	label: string;
-	className?: string;
 }
 
 type Status = "idle" | "copied" | "failed";
+
+const ICON = {
+	idle: CopyIcon,
+	copied: CheckIcon,
+	failed: WarningIcon,
+} as const;
 
 /**
  * Clipboard access is browser-only, but it is reached from an event handler so
  * there is nothing to guard at render time — the component renders identically
  * on the server and on first hydration.
  */
-export default function CopyButton({
-	getText,
-	label,
-	className,
-}: CopyButtonProps) {
+export default function CopyButton({ getText, label }: CopyButtonProps) {
 	const [status, setStatus] = useState<Status>("idle");
 
 	useEffect(() => {
@@ -38,18 +41,12 @@ export default function CopyButton({
 	}
 
 	return (
-		<button
-			type="button"
-			className={
-				className ?? "demo-button demo-button-secondary px-3 py-2 text-xs"
-			}
-			onClick={copy}
-		>
+		<Button variant="secondary" size="sm" icon={ICON[status]} onClick={copy}>
 			{status === "copied"
 				? "Copied"
 				: status === "failed"
 					? "Copy blocked"
 					: label}
-		</button>
+		</Button>
 	);
 }

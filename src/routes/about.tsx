@@ -1,3 +1,4 @@
+import { Text } from "@cloudflare/kumo";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ALL_FIELDS, SECTIONS } from "#/docker/catalog";
 import { PRESETS } from "#/docker/presets";
@@ -37,24 +38,26 @@ const STACK: Array<[string, string]> = [
 
 function About() {
 	return (
-		<main className="demo-page flex flex-col gap-6">
-			<section className="island-shell rounded-[2rem] px-6 py-10 sm:px-10">
-				<p className="island-kicker mb-3">About</p>
-				<h1 className="display-title mb-4 text-4xl leading-[1.05] font-bold tracking-tight text-[var(--sea-ink)] sm:text-5xl">
+		<main className="page">
+			<section className="panel panel--hero about__hero">
+				<p className="kicker">About</p>
+				<Text variant="heading1" as="h1">
 					A visual editor for one specific JSON object.
-				</h1>
-				<p className="m-0 max-w-3xl text-base text-[var(--sea-ink-soft)]">
+				</Text>
+				<Text variant="secondary">
 					The Docker Engine API's <code>ServiceUpdate</code> body is deeply
 					nested, unit-free and unforgiving. This builder covers{" "}
 					{ALL_FIELDS.length} keys across {SECTIONS.length} sections of Engine
 					API {API_VERSION}, explains each one in plain language, and exports
 					the result as JSON, YAML or a runnable curl script.
-				</p>
+				</Text>
 			</section>
 
-			<section className="demo-panel flex flex-col gap-3">
-				<h2 className="demo-section-title">How it works</h2>
-				<ul className="m-0 list-disc space-y-2 pl-5 text-sm text-[var(--sea-ink-soft)]">
+			<section className="panel">
+				<Text variant="heading3" as="h2">
+					How it works
+				</Text>
+				<ul className="about__list">
 					<li>
 						Every key is described as data in <code>src/docker/catalog/</code> —
 						its JSON path, editor type, prose, CLI flag and Compose equivalent.
@@ -80,37 +83,37 @@ function About() {
 				</ul>
 			</section>
 
-			<section className="demo-panel flex flex-col gap-3">
-				<h2 className="demo-section-title">Stack</h2>
-				<dl className="m-0 flex flex-col gap-3">
+			<section className="panel">
+				<Text variant="heading3" as="h2">
+					Stack
+				</Text>
+				<dl className="about__stack">
 					{STACK.map(([name, description]) => (
-						<div key={name}>
-							<dt className="text-sm font-bold text-[var(--sea-ink)]">
-								{name}
-							</dt>
-							<dd className="m-0 text-sm text-[var(--sea-ink-soft)]">
-								{description}
-							</dd>
+						<div className="about__stack-row" key={name}>
+							<dt>{name}</dt>
+							<dd>{description}</dd>
 						</div>
 					))}
 				</dl>
 			</section>
 
-			<section className="demo-panel flex flex-col gap-3">
-				<h2 className="demo-section-title">Scope and honesty</h2>
-				<p className="m-0 text-sm text-[var(--sea-ink-soft)]">
+			<section className="panel">
+				<Text variant="heading3" as="h2">
+					Scope and honesty
+				</Text>
+				<Text variant="secondary" size="sm">
 					This app never talks to a Docker daemon. It has no backend, holds no
 					credentials, and cannot apply anything — it produces text you review
 					and run yourself. That is deliberate: the dangerous part of a service
 					update is the merge, and a tool that hides the merge would be worse
 					than no tool.
-				</p>
-				<p className="m-0 text-sm">
+				</Text>
+				<Text size="sm">
 					<a href={API_DOC_URL} target="_blank" rel="noreferrer">
 						Engine API {API_VERSION} — ServiceUpdate reference
 					</a>{" "}
 					· <Link to="/blog">Field guide</Link> · <Link to="/">Builder</Link>
-				</p>
+				</Text>
 			</section>
 		</main>
 	);

@@ -1,3 +1,4 @@
+import { Input, Text } from "@cloudflare/kumo";
 import { createFileRoute } from "@tanstack/react-router";
 import { useStore } from "@tanstack/react-store";
 
@@ -10,13 +11,13 @@ export const Route = createFileRoute("/demo/store")({
 function FirstName() {
 	const firstName = useStore(store, (state) => state.firstName);
 	return (
-		<input
+		<Input
+			label="First name"
 			type="text"
 			value={firstName}
 			onChange={(e) =>
 				store.setState((state) => ({ ...state, firstName: e.target.value }))
 			}
-			className="demo-input"
 		/>
 	);
 }
@@ -24,28 +25,34 @@ function FirstName() {
 function LastName() {
 	const lastName = useStore(store, (state) => state.lastName);
 	return (
-		<input
+		<Input
+			label="Last name"
 			type="text"
 			value={lastName}
 			onChange={(e) =>
 				store.setState((state) => ({ ...state, lastName: e.target.value }))
 			}
-			className="demo-input"
 		/>
 	);
 }
 
 function FullName() {
 	const fName = useStore(fullName, (state) => state);
-	return <div className="demo-list-item font-medium">{fName}</div>;
+	return (
+		<div className="demo-card">
+			<Text bold>{fName}</Text>
+		</div>
+	);
 }
 
 function DemoStore() {
 	return (
-		<main className="demo-page demo-center">
-			<section className="demo-panel flex w-full max-w-xl flex-col gap-4">
-				<p className="island-kicker">TanStack Store</p>
-				<h1 className="demo-title mb-2">Store Example</h1>
+		<main className="page page--center">
+			<section className="panel demo-panel">
+				<p className="kicker">TanStack Store</p>
+				<Text variant="heading1" as="h1">
+					Store Example
+				</Text>
 				<FirstName />
 				<LastName />
 				<FullName />

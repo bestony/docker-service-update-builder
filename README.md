@@ -55,6 +55,8 @@ src/
   components/        Generic renderers over the catalog
   content/           Field guide posts, loaded via TanStack Query
   routes/            File-based routes
+  styles.css         Style entry: Kumo's stylesheet, then the partials below
+  styles/            One hand-written CSS partial per component
 ```
 
 ## Adding a field
@@ -66,7 +68,9 @@ the search index all follow from the data.
 ## Stack
 
 TanStack Start · Router · Store · Query · Intent · CLI, with Biome as the
-toolchain and Tailwind 4 for styling.
+toolchain, [Kumo](https://kumo-ui.com) for UI components and hand-written CSS
+on Kumo's design tokens for everything else. There is no utility-class
+framework — see [AGENTS.md](./AGENTS.md#styling) for the styling rules.
 
 See [AGENTS.md](./AGENTS.md) for the exact scaffolding commands, architecture
 decisions, known gotchas and next steps.

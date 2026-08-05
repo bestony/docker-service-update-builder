@@ -1,3 +1,4 @@
+import { Button, Text } from "@cloudflare/kumo";
 import { useSelector } from "@tanstack/react-store";
 import { PRESETS } from "#/docker/presets";
 import { generatorStore, presetById } from "#/store/generator-store";
@@ -12,49 +13,49 @@ export default function PresetBar() {
 	const active = presetId ? presetById.get(presetId) : undefined;
 
 	return (
-		<div className="demo-panel flex flex-col gap-3">
-			<div>
-				<p className="island-kicker mb-1">Start from a preset</p>
-				<h2 className="demo-section-title">Common update shapes</h2>
+		<div className="panel">
+			<div className="preset-bar__intro">
+				<p className="kicker">Start from a preset</p>
+				<Text variant="heading3" as="h2">
+					Common update shapes
+				</Text>
 			</div>
 
-			<div className="flex flex-wrap gap-2">
+			<div className="preset-bar__options">
 				{PRESETS.map((preset) => (
-					<button
+					<Button
 						key={preset.id}
-						type="button"
+						size="sm"
+						variant={presetId === preset.id ? "primary" : "secondary"}
 						title={preset.summary}
-						className={`demo-button px-3 py-2 text-xs ${
-							presetId === preset.id ? "" : "demo-button-secondary"
-						}`}
 						onClick={() => generatorStore.actions.applyPreset(preset)}
 					>
 						{preset.title}
-					</button>
+					</Button>
 				))}
-				<button
-					type="button"
-					className="demo-button demo-button-danger px-3 py-2 text-xs"
+				<Button
+					variant="secondary-destructive"
+					size="sm"
 					onClick={() => generatorStore.actions.reset()}
 				>
 					Clear all
-				</button>
+				</Button>
 			</div>
 
 			{active ? (
-				<div className="demo-list-item flex flex-col gap-1">
-					<strong className="text-sm text-[var(--sea-ink)]">
+				<div className="preset-bar__detail">
+					<Text as="strong" size="sm" bold>
 						{active.summary}
-					</strong>
-					<p className="m-0 text-sm text-[var(--sea-ink-soft)]">
+					</Text>
+					<Text variant="secondary" size="sm">
 						<InlineText text={active.rationale} />
-					</p>
+					</Text>
 				</div>
 			) : (
-				<p className="m-0 text-sm text-[var(--sea-ink-soft)]">
+				<Text variant="secondary" size="sm">
 					Or tick any field below. Only the fields you enable end up in the
 					generated object.
-				</p>
+				</Text>
 			)}
 		</div>
 	);

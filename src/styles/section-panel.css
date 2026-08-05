@@ -1,0 +1,67 @@
+/*
+ * SectionPanel — one collapsible group of the field catalog, on a `.panel`.
+ *
+ * The disclosure header stays a native <button> because its expanded state is
+ * derived rather than user-owned (see the component). Undoing the browser's
+ * button chrome is therefore this file's main job: a button that has to read as
+ * a heading needs its font, colour and alignment handed back to it.
+ */
+
+.section-panel__toggle {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--app-space-3);
+	appearance: none;
+	margin: 0;
+	border: 0;
+	border-radius: var(--app-radius-md);
+	background: none;
+	padding: 0;
+	width: 100%;
+	color: inherit;
+	font: inherit;
+	text-align: left;
+	cursor: pointer;
+}
+
+/* The panel's own padding leaves no room for a ring drawn tight to the text. */
+.section-panel__toggle:focus-visible {
+	outline-offset: 4px;
+}
+
+.section-panel__heading {
+	display: flex;
+	flex-direction: column;
+	gap: var(--app-space-1);
+	/* Lets the long summary wrap instead of pushing the badges off the row. */
+	min-width: 0;
+}
+
+/*
+ * The breadcrumb borrows `.kicker` for its size and tracking, but a JSON path
+ * has to keep its casing and spacing — `TaskTemplate.ContainerSpec` is not
+ * `TASKTEMPLATE.CONTAINERSPEC`. The chrome of inline `code` goes too: this is a
+ * label, not a quoted value.
+ */
+.section-panel__path code {
+	border: 0;
+	background: none;
+	padding: 0;
+	font-size: inherit;
+	letter-spacing: normal;
+	text-transform: none;
+}
+
+.section-panel__badges {
+	display: flex;
+	flex-shrink: 0;
+	align-items: center;
+	gap: var(--app-space-2);
+}
+
+.section-panel__fields {
+	display: grid;
+	gap: var(--app-space-3);
+}

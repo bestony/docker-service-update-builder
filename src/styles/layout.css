@@ -1,0 +1,92 @@
+/*
+ * Page scaffolding shared by every route.
+ *
+ * `.page` is the only container that owns the app's measure. Routes compose it
+ * with a modifier rather than restating widths, so changing the measure is a
+ * one-line edit here.
+ */
+
+.page {
+	display: flex;
+	flex-direction: column;
+	gap: var(--app-space-5);
+	width: min(var(--app-width), calc(100% - var(--app-gutter) * 2));
+	margin-inline: auto;
+	padding-block: clamp(var(--app-space-6), 6vw, var(--app-space-7));
+}
+
+/* The builder needs room for the editor and the output panel side by side. */
+.page--wide {
+	width: min(var(--app-width-wide), calc(100% - var(--app-gutter) * 2));
+}
+
+/* Single-card routes: demos and the blog's not-found state. */
+.page--center {
+	min-height: calc(100vh - 13rem);
+	justify-content: center;
+	align-items: center;
+}
+
+/*
+ * The shared surface for every panel the app draws itself. Kumo's `Surface`
+ * covers component-level containers; this is the page-level equivalent, sized
+ * and spaced for long-form content rather than for a control.
+ */
+.panel {
+	display: flex;
+	flex-direction: column;
+	gap: var(--app-space-3);
+	border: 1px solid var(--color-kumo-hairline);
+	border-radius: var(--app-radius-xl);
+	background-color: var(--color-kumo-base);
+	box-shadow: var(--app-shadow-panel);
+	padding: clamp(var(--app-space-4), 4vw, var(--app-space-5));
+}
+
+/* A heavier panel for the one hero block per route. */
+.panel--hero {
+	gap: var(--app-space-4);
+	background-color: var(--color-kumo-elevated);
+	box-shadow: var(--app-shadow-raised);
+	padding: clamp(var(--app-space-5), 5vw, var(--app-space-7))
+		clamp(var(--app-space-4), 5vw, var(--app-space-6));
+}
+
+/*
+ * Small-caps section label. Used above a heading to say what kind of block this
+ * is — the one piece of decorative typography the app keeps.
+ */
+.kicker {
+	margin: 0;
+	color: var(--text-color-kumo-subtle);
+	font-size: var(--text-xs);
+	font-weight: 700;
+	letter-spacing: 0.14em;
+	text-transform: uppercase;
+}
+
+/* Constrains long-form paragraphs to a readable line length inside wide panels. */
+.measure {
+	max-width: 62ch;
+}
+
+.rise-in {
+	animation: rise-in 600ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.rise-in {
+		animation: none;
+	}
+}
+
+@keyframes rise-in {
+	from {
+		opacity: 0;
+		transform: translateY(10px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}

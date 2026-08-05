@@ -1,3 +1,4 @@
+import { Loader, Text } from "@cloudflare/kumo";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { useSelector } from "@tanstack/react-store";
@@ -31,34 +32,35 @@ export default function FurtherReading() {
 	);
 
 	return (
-		<div className="demo-panel flex flex-col gap-3">
-			<div>
-				<p className="island-kicker mb-1">Field guide</p>
-				<h2 className="demo-section-title">
+		<div className="panel">
+			<div className="further-reading__header">
+				<p className="kicker">Field guide</p>
+				<Text variant="heading3" as="h2">
 					{active.size === 0
 						? "Start here"
 						: "Background for what you have configured"}
-				</h2>
+				</Text>
 			</div>
 
 			{isPending ? (
-				<p className="m-0 text-sm text-[var(--sea-ink-soft)]">Loading…</p>
+				<div className="further-reading__loading">
+					<Loader size="sm" />
+					<Text variant="secondary" size="sm" as="span">
+						Loading…
+					</Text>
+				</div>
 			) : null}
 
-			<ul className="m-0 flex list-none flex-col gap-2 p-0">
+			<ul className="further-reading__list">
 				{relevant.map((post) => (
 					<li key={post.slug}>
 						<Link
 							to="/blog/$slug"
 							params={{ slug: post.slug }}
-							className="demo-list-item block no-underline"
+							className="further-reading__card"
 						>
-							<strong className="text-sm text-[var(--sea-ink)]">
-								{post.title}
-							</strong>
-							<p className="m-0 mt-1 text-sm text-[var(--sea-ink-soft)]">
-								{post.summary}
-							</p>
+							<strong className="further-reading__title">{post.title}</strong>
+							<p className="further-reading__summary">{post.summary}</p>
 						</Link>
 					</li>
 				))}

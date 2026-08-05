@@ -1,0 +1,19 @@
+/*
+ * ThemeToggle.
+ *
+ * The button itself is a Kumo `Button` — all this file does is drop the text
+ * label on narrow screens, where the icon alone already carries the meaning and
+ * the header has no room to spare.
+ */
+
+@media (max-width: 30rem) {
+	.theme-toggle__label {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		margin: -1px;
+		overflow: hidden;
+		clip-path: inset(50%);
+		white-space: nowrap;
+	}
+}

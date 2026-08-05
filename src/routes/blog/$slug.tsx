@@ -1,3 +1,4 @@
+import { Badge, Text } from "@cloudflare/kumo";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import PostBody from "#/components/blog/PostBody";
@@ -24,17 +25,17 @@ export const Route = createFileRoute("/blog/$slug")({
 	}),
 	component: BlogPost,
 	notFoundComponent: () => (
-		<main className="demo-page demo-center">
-			<div className="demo-panel flex max-w-lg flex-col gap-3 text-center">
-				<h1 className="demo-title text-2xl">No such post</h1>
-				<p className="m-0 text-sm text-[var(--sea-ink-soft)]">
+		<main className="page page--center">
+			<div className="panel blog-not-found">
+				<Text variant="heading2" as="h1">
+					No such post
+				</Text>
+				<Text variant="secondary" size="sm">
 					That slug is not part of the field guide.
-				</p>
-				<div>
-					<Link to="/blog" className="demo-button no-underline">
-						Back to the field guide
-					</Link>
-				</div>
+				</Text>
+				<Link to="/blog" className="blog-chip">
+					Back to the field guide
+				</Link>
 			</div>
 		</main>
 	),
@@ -51,37 +52,39 @@ function BlogPost() {
 	);
 
 	return (
-		<main className="demo-page flex flex-col gap-6">
-			<article className="demo-panel flex flex-col gap-4">
-				<div className="flex flex-wrap items-center gap-2">
+		<main className="page blog-post">
+			<article className="panel blog-post__article">
+				<div className="blog-post__meta">
 					{post.tags.map((tag) => (
-						<span key={tag} className="demo-pill">
+						<Badge key={tag} variant="neutral">
 							{tag}
-						</span>
+						</Badge>
 					))}
-					<span className="text-xs text-[var(--sea-ink-soft)]">
+					<span className="blog-post__byline">
 						{post.date} · {post.readingMinutes} min read
 					</span>
 				</div>
 
-				<h1 className="demo-title text-3xl">{post.title}</h1>
-				<p className="m-0 text-base text-[var(--sea-ink-soft)]">
-					{post.summary}
-				</p>
+				<Text variant="heading1" as="h1">
+					{post.title}
+				</Text>
+				<Text variant="secondary">{post.summary}</Text>
 
 				<PostBody blocks={post.blocks} />
 			</article>
 
 			{relatedSections.length > 0 ? (
-				<section className="demo-panel flex flex-col gap-3">
-					<p className="island-kicker">Configure it</p>
-					<p className="m-0 text-sm text-[var(--sea-ink-soft)]">
+				<section className="panel">
+					<p className="kicker">Configure it</p>
+					<Text variant="secondary" size="sm">
 						Sections of the builder that cover what this post describes:
-					</p>
-					<ul className="m-0 flex list-none flex-wrap gap-2 p-0">
+					</Text>
+					{/* These stay router links rather than Kumo Buttons: they navigate, so
+					    they must remain real anchors for middle-click and copy-link. */}
+					<ul className="blog-post__section-links">
 						{relatedSections.map((section) => (
 							<li key={section.id}>
-								<Link to="/" className="demo-button no-underline text-xs">
+								<Link to="/" className="blog-chip">
 									{section.title}
 								</Link>
 							</li>
@@ -90,11 +93,9 @@ function BlogPost() {
 				</section>
 			) : null}
 
-			<div>
-				<Link to="/blog" className="text-sm">
-					← All posts
-				</Link>
-			</div>
+			<Link to="/blog" className="blog-post__back">
+				← All posts
+			</Link>
 		</main>
 	);
 }

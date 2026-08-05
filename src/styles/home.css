@@ -1,0 +1,71 @@
+/*
+ * Builder route: the hero block and the editor/output grid beneath it.
+ *
+ * The hero's decorative radial blob is gone rather than re-tinted. It belonged
+ * to the old identity; `.panel--hero` already lifts this block off the canvas,
+ * and Kumo's surfaces are flat by design.
+ *
+ * Kumo's `Text` deliberately refuses a plain `className` — it only exposes
+ * `DANGEROUS_className` — so the hero's typography is reached through element
+ * selectors scoped to the block instead of per-element classes.
+ */
+
+.home-hero > h1 {
+	/*
+	 * Kumo's `heading1` is a fixed 30px. The hero is the one place worth letting
+	 * it fall back to the next step down on narrow screens, where 30px across a
+	 * 22ch measure wraps to five lines.
+	 */
+	max-width: 22ch;
+	font-size: clamp(var(--text-2xl), 4.5vw, var(--text-3xl));
+	line-height: 1.1;
+}
+
+.home-hero > p {
+	max-width: 62ch;
+}
+
+/*
+ * The callout is a Kumo `Banner`, which paints its own warning tint and text
+ * colour. Inline `<code>` has to follow that colour: with `base.css`'s neutral
+ * treatment the sentence reads as a warning interrupted by three grey chips.
+ */
+.home-hero__callout code {
+	border-color: color-mix(in oklab, currentcolor 30%, transparent);
+	background-color: color-mix(in oklab, currentcolor 10%, transparent);
+	color: inherit;
+}
+
+/*
+ * Editor and output. One column by default; the second column only appears once
+ * there is room for the output panel to show a JSON document without wrapping
+ * every line, which is also the point where a sticky sidebar stops eating the
+ * whole viewport.
+ */
+.home-builder {
+	display: grid;
+	align-items: start;
+	gap: var(--app-space-5);
+}
+
+.home-builder__editor,
+.home-builder__output {
+	display: flex;
+	flex-direction: column;
+	gap: var(--app-space-4);
+	/* Grid items default to `min-width: auto`, which lets a long unbroken token
+	   inside a panel widen the column instead of wrapping. */
+	min-width: 0;
+}
+
+@media (min-width: 64rem) {
+	.home-builder {
+		grid-template-columns: minmax(0, 1fr) minmax(0, 26rem);
+	}
+
+	.home-builder__output {
+		position: sticky;
+		/* The site header is sticky too: this is its height plus a gutter. */
+		top: calc(var(--app-space-7) + var(--app-space-6));
+	}
+}

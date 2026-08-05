@@ -1,0 +1,63 @@
+/*
+ * PostBody — the prose of a field-guide post.
+ *
+ * Blocks are siblings in one flex column, so the rhythm between them lives here
+ * rather than as margins on each block; Kumo's reset zeroes those anyway. Only
+ * the code frame and the list need styling of their own — headings, paragraphs
+ * and the note are Kumo components, and `base.css` already puts back the list
+ * markers and the inline-code chip.
+ */
+
+.post-body {
+	display: flex;
+	flex-direction: column;
+	gap: var(--app-space-4);
+}
+
+/*
+ * A heading belongs to the prose below it, so it takes its extra air from the
+ * block above — but not when it opens the article.
+ */
+.post-body > h2:not(:first-child) {
+	margin-block-start: var(--app-space-2);
+}
+
+.post-body__list {
+	margin: 0;
+	color: var(--text-color-kumo-subtle);
+}
+
+.post-body__list > li + li {
+	margin-block-start: var(--app-space-2);
+}
+
+/*
+ * `overflow: hidden` on the frame clips the scrolling child to the rounded
+ * corners; the `<pre>` inside is the actual scroll container.
+ */
+.post-body__code {
+	overflow: hidden;
+	border: 1px solid var(--color-kumo-hairline);
+	border-radius: var(--app-radius-md);
+	background-color: var(--color-kumo-recessed);
+}
+
+.post-body__code > pre {
+	margin: 0;
+	overflow-x: auto;
+	padding: var(--app-space-3) var(--app-space-4);
+	color: var(--text-color-kumo-default);
+	font-size: var(--text-xs);
+	line-height: 1.7;
+	tab-size: 2;
+}
+
+/*
+ * The banner tints everything inside it with its accent colour, so inline code
+ * borrows that colour instead of the neutral chip from `base.css` — otherwise
+ * the note reads as two colours fighting.
+ */
+.post-body__note code {
+	border-color: color-mix(in oklab, currentColor 25%, transparent);
+	background-color: color-mix(in oklab, currentColor 10%, transparent);
+}

@@ -1,3 +1,4 @@
+import { Badge, Text } from "@cloudflare/kumo";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { postsQueryOptions } from "#/content/posts-query";
@@ -24,48 +25,51 @@ function BlogIndex() {
 	const { data: posts } = useSuspenseQuery(postsQueryOptions());
 
 	return (
-		<main className="demo-page flex flex-col gap-6">
-			<section className="island-shell rise-in rounded-[2rem] px-6 py-10 sm:px-10">
-				<p className="island-kicker mb-3">Field guide</p>
-				<h1 className="display-title mb-4 text-4xl leading-[1.05] font-bold tracking-tight text-[var(--sea-ink)]">
+		<main className="page blog-index">
+			<section className="panel panel--hero rise-in">
+				<p className="kicker">Field guide</p>
+				<Text variant="heading1" as="h1">
 					The parts that are not in the schema.
-				</h1>
-				<p className="m-0 max-w-2xl text-base text-[var(--sea-ink-soft)]">
-					The Engine API reference tells you the type of every key. It does not
-					tell you that the endpoint replaces the whole spec, that durations are
-					nanoseconds, or why your rollout is quietly dropping connections.
-					These posts do.
-				</p>
+				</Text>
+				{/* Kumo's Text takes no className, so the measure lives on a wrapper. */}
+				<div className="measure">
+					<Text variant="secondary">
+						The Engine API reference tells you the type of every key. It does
+						not tell you that the endpoint replaces the whole spec, that
+						durations are nanoseconds, or why your rollout is quietly dropping
+						connections. These posts do.
+					</Text>
+				</div>
 			</section>
 
-			<div className="grid gap-4 sm:grid-cols-2">
+			<div className="blog-index__grid">
 				{posts.map((post) => (
-					<article key={post.slug} className="demo-panel flex flex-col gap-3">
-						<div className="flex flex-wrap items-center gap-2">
+					<article key={post.slug} className="panel blog-index__card">
+						<div className="blog-index__meta">
 							{post.tags.map((tag) => (
-								<span key={tag} className="demo-pill">
+								<Badge key={tag} variant="neutral">
 									{tag}
-								</span>
+								</Badge>
 							))}
-							<span className="text-xs text-[var(--sea-ink-soft)]">
+							<span className="blog-index__reading">
 								{post.readingMinutes} min read
 							</span>
 						</div>
-						<h2 className="demo-section-title text-lg">
+						<Text variant="heading3" as="h2">
 							<Link
 								to="/blog/$slug"
 								params={{ slug: post.slug }}
-								className="no-underline"
+								className="blog-index__title-link"
 							>
 								{post.title}
 							</Link>
-						</h2>
-						<p className="m-0 text-sm text-[var(--sea-ink-soft)]">
+						</Text>
+						<Text variant="secondary" size="sm">
 							{post.summary}
-						</p>
-						<p className="m-0 text-xs text-[var(--sea-ink-soft)]">
+						</Text>
+						<Text variant="secondary" size="xs">
 							{post.date}
-						</p>
+						</Text>
 					</article>
 				))}
 			</div>

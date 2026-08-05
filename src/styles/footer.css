@@ -1,0 +1,68 @@
+/*
+ * Site footer.
+ *
+ * The footer is rendered outside `.page` — it sits directly in the body so its
+ * top rule spans the full viewport — which means `.footer__inner` has to
+ * restate the page measure instead of inheriting it. Keep the width here in
+ * step with `.page` in layout.css or the footer will drift out of alignment
+ * with the content above it.
+ */
+
+.footer {
+	margin-block-start: var(--app-space-7);
+	border-top: 1px solid var(--color-kumo-hairline);
+	padding-block: var(--app-space-6) var(--app-space-7);
+	padding-inline: var(--app-gutter);
+}
+
+.footer__inner {
+	display: flex;
+	flex-direction: column;
+	gap: var(--app-space-4);
+	width: min(var(--app-width), 100%);
+	margin-inline: auto;
+}
+
+/* Stacked and centred by default; the two halves split apart once they fit. */
+.footer__row {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: var(--app-space-2);
+	text-align: center;
+}
+
+@media (min-width: 40rem) {
+	.footer__row {
+		flex-direction: row;
+		justify-content: space-between;
+		text-align: start;
+	}
+}
+
+.footer__links {
+	display: flex;
+	justify-content: center;
+	gap: var(--app-space-3);
+}
+
+/*
+ * Icon-only links. Kumo's `Link` is built for inline text — its underline and
+ * external-link affordance make no sense on a bare logo — so these stay native
+ * anchors, opting out of the link styling `base.css` gives every `a`.
+ */
+.footer__link {
+	display: inline-flex;
+	border-radius: var(--app-radius-lg);
+	padding: var(--app-space-2);
+	color: var(--text-color-kumo-subtle);
+	text-decoration: none;
+	transition:
+		color var(--app-transition),
+		background-color var(--app-transition);
+}
+
+.footer__link:hover {
+	background-color: var(--color-kumo-tint);
+	color: var(--text-color-kumo-strong);
+}

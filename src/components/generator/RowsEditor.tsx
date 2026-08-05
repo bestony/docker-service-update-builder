@@ -1,3 +1,5 @@
+import { Badge, Button, Checkbox, Input, Select, Text } from "@cloudflare/kumo";
+import { PlusIcon, TrashIcon } from "@phosphor-icons/react";
 import { useSelector } from "@tanstack/react-store";
 import { useId } from "react";
 import type { FieldDef, RowColumn } from "#/docker/field-types";
@@ -6,6 +8,38 @@ import InlineText from "../InlineText";
 
 interface RowsEditorProps {
 	field: FieldDef;
+}
+
+/**
+ * The column heading: the human label plus the literal JSON key.
+ *
+ * Kumo's Checkbox renders a `<span role="checkbox">` and takes no `id`, so a
+ * boolean column has nothing a `<label for>` could point at — that one heading
+ * degrades to a `<span>` and the control names itself with `aria-label`.
+ */
+function ColumnLabel({
+	column,
+	controlId,
+}: {
+	column: RowColumn;
+	controlId: string;
+}) {
+	const content = (
+		<>
+			{column.label}
+			<code>{column.key}</code>
+		</>
+	);
+
+	if (column.type === "boolean") {
+		return <span className="rows-editor__label">{content}</span>;
+	}
+
+	return (
+		<label className="rows-editor__label" htmlFor={controlId}>
+			{content}
+		</label>
+	);
 }
 
 function Cell({
@@ -21,41 +55,53 @@ function Cell({
 }) {
 	if (column.type === "boolean") {
 		return (
-			<span className="flex items-center gap-2 text-sm text-[var(--sea-ink-soft)]">
-				<input
-					id={id}
-					type="checkbox"
+			<span className="rows-editor__toggle">
+				<Checkbox
 					checked={value === "true"}
-					onChange={(event) => onChange(event.target.checked ? "true" : "")}
-					className="h-4 w-4 accent-[var(--lagoon-deep)]"
+					onCheckedChange={(checked) => onChange(checked ? "true" : "")}
+					aria-label={column.label}
 				/>
-				{value === "true" ? "true" : "unset"}
+				{/*
+				 * The state word is an echo of the checkbox, not its name — Kumo's
+				 * `label` prop would wire it up as `aria-labelledby`, which outranks
+				 * `aria-label` and would leave the control announcing itself as
+				 * "unset" instead of naming the column.
+				 */}
+				<span aria-hidden="true">{value === "true" ? "true" : "unset"}</span>
 			</span>
 		);
 	}
 
 	if (column.type === "select") {
+		// The closed trigger cannot read the labels off its `Select.Option`
+		// children — they only exist while the popup is open — so left alone it
+		// would print the raw value. Resolve the label from the catalog instead.
+		const renderValue = (next: string) =>
+			column.options?.find((option) => option.value === next)?.label ?? next;
+
 		return (
-			<select
+			<Select
 				id={id}
-				className="demo-select"
+				aria-label={column.label}
 				value={value}
-				onChange={(event) => onChange(event.target.value)}
+				onValueChange={(next) => onChange(next ?? "")}
+				placeholder="— unset —"
+				renderValue={renderValue}
 			>
-				<option value="">— unset —</option>
+				<Select.Option value="">— unset —</Select.Option>
 				{column.options?.map((option) => (
-					<option key={option.value} value={option.value}>
+					<Select.Option key={option.value} value={option.value}>
 						{option.label}
-					</option>
+					</Select.Option>
 				))}
-			</select>
+			</Select>
 		);
 	}
 
 	return (
-		<input
+		<Input
 			id={id}
-			className="demo-input"
+			aria-label={column.label}
 			type={column.type === "number" ? "number" : "text"}
 			value={value}
 			placeholder={column.placeholder}
@@ -78,42 +124,41 @@ export default function RowsEditor({ field }: RowsEditorProps) {
 	const columns = field.columns ?? [];
 
 	return (
-		<div className="flex flex-col gap-3">
+		<div className="rows-editor">
 			{rows.length === 0 ? (
-				<p className="m-0 text-sm text-[var(--sea-ink-soft)]">
+				<Text variant="secondary" size="sm">
 					No entries yet — the key is omitted from the output.
-				</p>
+				</Text>
 			) : null}
 
 			{rows.map((row, index) => (
 				<div
 					// biome-ignore lint/suspicious/noArrayIndexKey: rows are positional and carry no stable id
 					key={index}
-					className="demo-list-item flex flex-col gap-3"
+					className="rows-editor__row"
 				>
-					<div className="flex items-center justify-between gap-3">
-						<span className="demo-pill">#{index + 1}</span>
-						<button
-							type="button"
-							className="demo-button demo-button-danger px-3 py-1.5 text-xs"
+					<div className="rows-editor__row-header">
+						<Badge variant="neutral">#{index + 1}</Badge>
+						<Button
+							variant="secondary-destructive"
+							size="xs"
+							icon={TrashIcon}
 							onClick={() => generatorStore.actions.removeRow(field.id, index)}
 						>
 							Remove
-						</button>
+						</Button>
 					</div>
 
-					<div className="grid gap-3 sm:grid-cols-2">
+					<div className="rows-editor__grid">
 						{columns.map((column) => {
 							const controlId = `${scope}-${index}-${column.key}`;
 							return (
-								<div key={column.key} className="flex flex-col gap-1.5">
-									<label
-										htmlFor={controlId}
-										className="text-xs font-bold text-[var(--sea-ink)]"
-									>
-										{column.label}
-										<code className="ml-2 font-normal">{column.key}</code>
-									</label>
+								<div
+									key={column.key}
+									className="rows-editor__cell"
+									data-width={column.width}
+								>
+									<ColumnLabel column={column} controlId={controlId} />
 									<Cell
 										id={controlId}
 										column={column}
@@ -127,9 +172,9 @@ export default function RowsEditor({ field }: RowsEditorProps) {
 											)
 										}
 									/>
-									<span className="text-xs text-[var(--sea-ink-soft)]">
+									<Text variant="secondary" size="xs" as="span">
 										<InlineText text={column.hint} />
-									</span>
+									</Text>
 								</div>
 							);
 						})}
@@ -137,14 +182,15 @@ export default function RowsEditor({ field }: RowsEditorProps) {
 				</div>
 			))}
 
-			<div>
-				<button
-					type="button"
-					className="demo-button demo-button-secondary px-3 py-2 text-xs"
+			<div className="rows-editor__actions">
+				<Button
+					variant="secondary"
+					size="sm"
+					icon={PlusIcon}
 					onClick={() => generatorStore.actions.addRow(field.id)}
 				>
-					+ Add entry
-				</button>
+					Add entry
+				</Button>
 			</div>
 		</div>
 	);

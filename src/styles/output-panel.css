@@ -1,0 +1,57 @@
+/*
+ * OutputPanel — the generated object plus everything that acts on it: the
+ * copy/download row, the format switcher and the footnotes.
+ *
+ * The code block is a native `<pre><code>`, so it is the one piece here that
+ * needs real styling. Kumo's `Code` would render it more prettily but drags a
+ * syntax highlighter into an otherwise dependency-light bundle, and the output
+ * is a data object rather than source to read.
+ */
+
+.output-panel {
+	display: flex;
+	flex-direction: column;
+	gap: var(--app-space-4);
+}
+
+.output-panel__header {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--app-space-3);
+}
+
+.output-panel__title {
+	display: flex;
+	flex-direction: column;
+	gap: var(--app-space-1);
+}
+
+.output-panel__actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--app-space-2);
+}
+
+/*
+ * The segmented track paints across the full width of its box, so left-align
+ * it: three short labels adrift in a panel-wide trough read as a bug.
+ */
+.output-panel__formats {
+	align-self: start;
+}
+
+.output-panel__code {
+	max-height: 28rem;
+	overflow: auto;
+	margin: 0;
+	border: 1px solid var(--color-kumo-hairline);
+	border-radius: var(--app-radius-lg);
+	background-color: var(--color-kumo-recessed);
+	padding: var(--app-space-4);
+	color: var(--text-color-kumo-default);
+	font-size: var(--text-xs);
+	line-height: 1.7;
+	tab-size: 2;
+}

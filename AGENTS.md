@@ -125,6 +125,7 @@ Notes on that command line, from the CLI's own output:
 
 - `--tailwind` is **deprecated and ignored** — Tailwind is always on in standard
   scaffolds. `--no-tailwind` is likewise gone; use `--blank` for a bare project.
+  Tailwind was removed from this project after scaffolding; see *Styling* below.
 - `--agent` is accepted and implies `--intent`, so Intent skill mappings are
   written during `create`. Running `intent install` afterwards is still required
   by the project brief and is idempotent.
@@ -143,7 +144,9 @@ Notes on that command line, from the CLI's own output:
 | Agent guidance | TanStack Intent | the skill block at the top of this file |
 | Scaffolding | TanStack CLI | `.cta.json` records the chosen add-ons |
 | Toolchain | Biome 2.4.5 | `biome.json`, `pnpm check` |
-| Styling | Tailwind 4 + design tokens | `src/styles.css` |
+| UI components | Kumo (`@cloudflare/kumo`) on Base UI | imported per component |
+| Icons | Phosphor (`@phosphor-icons/react`) | passed to Kumo's `icon` props |
+| Styling | Hand-written CSS on Kumo tokens | `src/styles.css`, `src/styles/` |
 
 **"Blog starter" — not available.** The brief asked for the blog starter, but the
 TanStack CLI ships no `blog` template: `--template-id blog` fails with
@@ -177,6 +180,36 @@ typed content in `src/content/posts.ts`. To adopt a real template later, pass
    full read → merge → write flow. Never change this to imply it is a patch.
 7. **No backend.** No `createServerFn`, no server routes, no secrets. The app
    cannot talk to a daemon and must not learn to.
+8. **Kumo for components, hand-written CSS for everything else.** See *Styling*.
+
+## Styling
+
+Tailwind was removed. There is no utility-class framework in the toolchain and
+no CSS-in-JS — the rules are:
+
+- **Components come from Kumo** (`@cloudflare/kumo`, Cloudflare's Base UI-based
+  library): `Button`, `Input`, `InputArea`, `Select`, `Checkbox`, `Badge`,
+  `Banner`, `Tabs`, `Text`, `Loader`. Reach for a Kumo component before building
+  one. Icons are Phosphor components passed to Kumo's `icon` props.
+- **Kumo's standalone stylesheet** is imported at the top of `src/styles.css`.
+  It ships Kumo's component CSS, its design tokens and a modern element reset in
+  `@layer base` — so every unlayered app rule wins the cascade for free.
+- **Everything else is plain CSS** in `src/styles/`, one partial per component,
+  all imported by `src/styles.css`. Class names are BEM-ish and namespaced to
+  the component that owns them (`.field-editor__header`). A component's styles
+  live in exactly one partial; nothing else may write to it.
+- **Never write a utility class in JSX.** `className="flex gap-2"` is a bug, and
+  so is importing `cn`/`buttonVariants`/`linkVariants` from Kumo — those emit
+  utility strings. `className` may only hold semantic classes from the partials.
+- **Colour, type and elevation come from tokens**, never literals:
+  `--color-kumo-*` and `--text-color-kumo-*` from Kumo, `--app-*` from
+  `src/styles/tokens.css` (page measures, spacing scale, radii, shadows).
+- **Dark mode is not hand-written.** Kumo resolves its palette through CSS
+  `light-dark()`, so `<html data-mode="light|dark">` plus `color-scheme` flips
+  the whole app. `ThemeToggle` and the inline boot script in `__root.tsx` set
+  both; keep them in step. Never author a dark-mode rule in a partial.
+- **Code blocks stay native `<pre><code>`.** Kumo's `Code`/`CodeBlock` pull in
+  Shiki, which would dwarf this app's bundle.
 
 ## Environment variables
 

@@ -1,3 +1,4 @@
+import { Badge, Text } from "@cloudflare/kumo";
 import { useSelector } from "@tanstack/react-store";
 import { useState } from "react";
 import { isFieldActive } from "#/docker/build-spec";
@@ -56,41 +57,46 @@ export default function SectionPanel({ section, filter }: SectionPanelProps) {
 	if (visibleFields.length === 0) return null;
 
 	return (
-		<section className="demo-panel flex flex-col gap-3">
+		<section className="panel">
+			{/*
+			 * A native button rather than Kumo's Collapsible: `expanded` is derived
+			 * from the search and the active count as well as the click, so a
+			 * component that owns its own open state would fight the derivation.
+			 */}
 			<button
 				type="button"
-				className="flex flex-wrap items-center justify-between gap-3 text-left"
+				className="section-panel__toggle"
+				aria-expanded={expanded}
 				onClick={() => setOpen((previous) => !previous)}
 			>
-				<div className="min-w-0">
-					<p className="island-kicker mb-1">
-						<code className="text-[0.7rem]">{section.path}</code>
-					</p>
-					<h2 className="demo-section-title">{section.title}</h2>
-					<p className="m-0 mt-1 text-sm text-[var(--sea-ink-soft)]">
+				<span className="section-panel__heading">
+					<span className="kicker section-panel__path">
+						<code>{section.path}</code>
+					</span>
+					<Text variant="heading3" as="h2">
+						{section.title}
+					</Text>
+					<Text variant="secondary" size="sm" as="span">
 						<InlineText text={section.summary} />
-					</p>
-				</div>
-				<div className="flex flex-shrink-0 items-center gap-2">
+					</Text>
+				</span>
+				<span className="section-panel__badges">
 					{activeCount > 0 ? (
-						<span className="demo-pill">{activeCount} set</span>
+						<Badge variant="neutral">{activeCount} set</Badge>
 					) : null}
-					<span className="demo-pill">{expanded ? "Hide" : "Show"}</span>
-				</div>
+					<Badge variant="outline">{expanded ? "Hide" : "Show"}</Badge>
+				</span>
 			</button>
 
 			{expanded ? (
 				<>
 					{section.details?.map((paragraph) => (
-						<p
-							key={paragraph.slice(0, 32)}
-							className="m-0 text-sm text-[var(--sea-ink-soft)]"
-						>
+						<Text key={paragraph.slice(0, 32)} variant="secondary" size="sm">
 							<InlineText text={paragraph} />
-						</p>
+						</Text>
 					))}
 
-					<div className="grid gap-3">
+					<div className="section-panel__fields">
 						{visibleFields.map((field) => (
 							<FieldEditor
 								key={field.id}

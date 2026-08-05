@@ -1,5 +1,14 @@
+import {
+	Banner,
+	Button,
+	Checkbox,
+	Input,
+	InputArea,
+	Select,
+	Text,
+} from "@cloudflare/kumo";
 import { useSelector } from "@tanstack/react-store";
-import { useId, useState } from "react";
+import { useState } from "react";
 import { describeDerivedValue } from "#/docker/build-spec";
 import type { FieldDef } from "#/docker/field-types";
 import { BYTE_UNITS, DURATION_UNITS, type UnitOption } from "#/docker/units";
@@ -23,8 +32,9 @@ function isMultiline(field: FieldDef): boolean {
 	return field.type === "lines" || field.type === "mapLines";
 }
 
+const UNSET_LABEL = "— unset —";
+
 export default function FieldEditor({ field, flagged }: FieldEditorProps) {
-	const inputId = useId();
 	const [showDetails, setShowDetails] = useState(false);
 	const state = useSelector(generatorStore, (store) => store.states[field.id]);
 
@@ -36,92 +46,93 @@ export default function FieldEditor({ field, flagged }: FieldEditorProps) {
 		: undefined;
 	const actions = generatorStore.actions;
 
+	// A closed Kumo Select cannot read the labels off its `Select.Option`
+	// children — those only exist while the popup is open — so left alone the
+	// trigger prints the raw Engine API value. Resolve the label from the
+	// catalog instead, the way the native `<select>` used to.
+	const renderOptionLabel = (value: string) =>
+		field.options?.find((option) => option.value === value)?.label ?? value;
+
+	const cardClass = [
+		"field-editor",
+		flagged ? "field-editor--flagged" : "",
+		state.enabled ? "" : "field-editor--dimmed",
+	]
+		.filter(Boolean)
+		.join(" ");
+
 	return (
-		<div
-			className={`demo-card flex flex-col gap-3 ${
-				state.enabled ? "" : "opacity-70"
-			} ${flagged ? "border-[rgba(196,71,71,0.45)]" : ""}`}
-		>
-			<div className="flex flex-wrap items-start gap-3">
-				<input
-					id={`${inputId}-toggle`}
-					type="checkbox"
+		<div className={cardClass}>
+			<div className="field-editor__header">
+				{/*
+				 * The label is the checkbox's accessible name, so it carries both
+				 * names the field goes by and nothing else — the summary and the
+				 * path below would only make that name longer to listen to.
+				 */}
+				<Checkbox
 					checked={state.enabled}
-					onChange={(event) =>
-						actions.toggleField(field.id, event.target.checked)
+					onCheckedChange={(checked) => actions.toggleField(field.id, checked)}
+					label={
+						<span className="field-editor__title">
+							{field.title}
+							<code>{field.key}</code>
+						</span>
 					}
-					className="mt-1 h-4 w-4 flex-shrink-0 accent-[var(--lagoon-deep)]"
 				/>
-				<div className="min-w-0 flex-1">
-					<label
-						htmlFor={`${inputId}-toggle`}
-						className="flex flex-wrap items-baseline gap-x-2 gap-y-1 text-sm font-bold text-[var(--sea-ink)]"
-					>
-						{field.title}
-						<code className="text-xs font-normal">{field.key}</code>
-					</label>
-					<p className="m-0 mt-1 text-sm text-[var(--sea-ink-soft)]">
-						<InlineText text={field.summary} />
-					</p>
-					<p className="m-0 mt-1 text-xs text-[var(--sea-ink-soft)]">
-						<code className="text-[0.7rem]">{field.path}</code>
-					</p>
-				</div>
+				<p className="field-editor__summary">
+					<InlineText text={field.summary} />
+				</p>
+				<p className="field-editor__path">
+					<code>{field.path}</code>
+				</p>
 			</div>
 
 			{state.enabled ? (
-				<div className="flex flex-col gap-2">
+				<div className="field-editor__controls">
 					{field.type === "rows" ? <RowsEditor field={field} /> : null}
 
 					{field.type === "boolean" ? (
-						<label className="flex items-center gap-2 text-sm text-[var(--sea-ink)]">
-							<input
-								type="checkbox"
-								checked={state.value === "true"}
-								onChange={(event) =>
-									actions.setValue(
-										field.id,
-										event.target.checked ? "true" : "false",
-									)
-								}
-								className="h-4 w-4 accent-[var(--lagoon-deep)]"
-							/>
-							<code>{state.value === "true" ? "true" : "false"}</code>
-						</label>
+						<Checkbox
+							checked={state.value === "true"}
+							onCheckedChange={(checked) =>
+								actions.setValue(field.id, checked ? "true" : "false")
+							}
+							label={<code>{state.value === "true" ? "true" : "false"}</code>}
+						/>
 					) : null}
 
 					{field.type === "select" ? (
-						<div className="flex flex-col gap-2">
-							<select
-								className="demo-select"
+						<div className="field-editor__choice">
+							<Select
+								aria-label={field.title}
 								value={state.value}
-								onChange={(event) =>
-									actions.setValue(field.id, event.target.value)
+								onValueChange={(value) =>
+									actions.setValue(field.id, value ?? "")
 								}
+								placeholder={UNSET_LABEL}
+								renderValue={renderOptionLabel}
 							>
-								<option value="">— unset —</option>
+								<Select.Option value="">{UNSET_LABEL}</Select.Option>
 								{field.options?.map((option) => (
-									<option key={option.value} value={option.value}>
+									<Select.Option key={option.value} value={option.value}>
 										{option.label}
-									</option>
+									</Select.Option>
 								))}
-							</select>
+							</Select>
 							{field.options
 								?.filter((option) => option.value === state.value)
 								.map((option) => (
-									<p
-										key={option.value}
-										className="m-0 text-xs text-[var(--sea-ink-soft)]"
-									>
+									<Text key={option.value} variant="secondary" size="xs">
 										<InlineText text={option.hint} />
-									</p>
+									</Text>
 								))}
 						</div>
 					) : null}
 
 					{isMultiline(field) ? (
-						<textarea
-							className="demo-textarea font-mono text-sm"
+						<InputArea
+							className="field-editor__lines"
+							aria-label={field.title}
 							value={state.value}
 							placeholder={field.placeholder}
 							spellCheck={false}
@@ -132,39 +143,44 @@ export default function FieldEditor({ field, flagged }: FieldEditorProps) {
 					) : null}
 
 					{units ? (
-						<div className="flex flex-wrap gap-2">
-							<input
-								className="demo-input demo-input-fit flex-1"
+						<div className="field-editor__units">
+							<Input
+								className="field-editor__amount"
 								type="number"
+								aria-label={field.title}
 								value={state.value}
 								placeholder={field.placeholder}
 								onChange={(event) =>
 									actions.setValue(field.id, event.target.value)
 								}
 							/>
-							<select
-								className="demo-select demo-input-fit"
+							<Select
+								aria-label="Unit"
 								value={state.unit ?? units[0].id}
-								onChange={(event) =>
-									actions.setUnit(field.id, event.target.value)
+								onValueChange={(value) =>
+									actions.setUnit(field.id, value ?? units[0].id)
+								}
+								renderValue={(value) =>
+									units.find((unit) => unit.id === value)?.label ?? value
 								}
 							>
 								{units.map((unit) => (
-									<option key={unit.id} value={unit.id}>
+									<Select.Option key={unit.id} value={unit.id}>
 										{unit.label}
-									</option>
+									</Select.Option>
 								))}
-							</select>
+							</Select>
 						</div>
 					) : null}
 
 					{field.type === "text" ||
 					field.type === "number" ||
 					field.type === "cpu" ? (
-						<input
-							className="demo-input"
+						<Input
+							className="field-editor__input"
 							type={field.type === "text" ? "text" : "number"}
 							step={field.type === "cpu" ? "0.1" : undefined}
+							aria-label={field.title}
 							value={state.value}
 							placeholder={field.placeholder}
 							onChange={(event) =>
@@ -174,65 +190,64 @@ export default function FieldEditor({ field, flagged }: FieldEditorProps) {
 					) : null}
 
 					{derived ? (
-						<p className="m-0 text-xs text-[var(--sea-ink-soft)]">
-							Serialises to <code className="text-[0.7rem]">{derived}</code>
-						</p>
+						<Text variant="secondary" size="xs">
+							Serialises to <code>{derived}</code>
+						</Text>
 					) : (
-						<p className="m-0 text-xs text-[var(--sea-ink-soft)]">
+						<Text variant="secondary" size="xs">
 							Empty — the key is omitted from the generated object.
-						</p>
+						</Text>
 					)}
 				</div>
 			) : null}
 
 			{field.caution ? (
-				<p className="m-0 rounded-lg border border-[rgba(193,126,42,0.3)] bg-[rgba(193,126,42,0.1)] px-3 py-2 text-xs text-[var(--sea-ink)]">
-					<InlineText text={field.caution} />
-				</p>
+				<Banner
+					variant="alert"
+					size="sm"
+					description={<InlineText text={field.caution} />}
+				/>
 			) : null}
 
-			<div>
-				<button
-					type="button"
-					className="text-xs font-bold text-[var(--lagoon-deep)] underline-offset-2 hover:underline"
-					onClick={() => setShowDetails((previous) => !previous)}
-				>
-					{showDetails ? "Hide explanation" : "What does this do?"}
-				</button>
-			</div>
+			<Button
+				className="field-editor__disclosure"
+				variant="ghost"
+				size="xs"
+				aria-expanded={showDetails}
+				onClick={() => setShowDetails((previous) => !previous)}
+			>
+				{showDetails ? "Hide explanation" : "What does this do?"}
+			</Button>
 
 			{showDetails ? (
-				<div className="flex flex-col gap-2 border-t border-[var(--line)] pt-3">
+				<div className="field-editor__details">
 					{field.details.map((paragraph) => (
-						<p
-							key={paragraph.slice(0, 32)}
-							className="m-0 text-sm text-[var(--sea-ink-soft)]"
-						>
+						<Text key={paragraph.slice(0, 32)} variant="secondary" size="sm">
 							<InlineText text={paragraph} />
-						</p>
+						</Text>
 					))}
-					<dl className="m-0 grid gap-1 text-xs text-[var(--sea-ink-soft)]">
+					<dl className="field-editor__meta">
 						{field.apiDefault ? (
-							<div className="flex gap-2">
-								<dt className="font-bold">API default</dt>
-								<dd className="m-0">
-									<code className="text-[0.7rem]">{field.apiDefault}</code>
+							<div className="field-editor__meta-row">
+								<dt>API default</dt>
+								<dd>
+									<code>{field.apiDefault}</code>
 								</dd>
 							</div>
 						) : null}
 						{field.cli ? (
-							<div className="flex flex-wrap gap-2">
-								<dt className="font-bold">CLI</dt>
-								<dd className="m-0">
-									<code className="text-[0.7rem]">{field.cli}</code>
+							<div className="field-editor__meta-row">
+								<dt>CLI</dt>
+								<dd>
+									<code>{field.cli}</code>
 								</dd>
 							</div>
 						) : null}
 						{field.compose ? (
-							<div className="flex flex-wrap gap-2">
-								<dt className="font-bold">Compose</dt>
-								<dd className="m-0">
-									<code className="text-[0.7rem]">{field.compose}</code>
+							<div className="field-editor__meta-row">
+								<dt>Compose</dt>
+								<dd>
+									<code>{field.compose}</code>
 								</dd>
 							</div>
 						) : null}

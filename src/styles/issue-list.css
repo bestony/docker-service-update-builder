@@ -1,0 +1,64 @@
+/*
+ * IssueList — the cross-field review panel.
+ *
+ * Every issue is a Kumo `Banner`, so the tint, accent colour, radius and
+ * padding come from the banner variant and are never restated here. What is
+ * left is the layout inside one banner: given children rather than
+ * `title`/`description`, `Banner` drops them straight into its own flex row, so
+ * the issue body has to claim the remaining width itself.
+ *
+ * Text colour is deliberately left to inherit — the accent the banner sets is
+ * what ties the level of an issue to how it reads.
+ */
+
+.issue-list__header {
+	display: flex;
+	flex-direction: column;
+	gap: var(--app-space-1);
+}
+
+.issue-list__issue {
+	display: flex;
+	flex: 1;
+	min-width: 0;
+	flex-direction: column;
+	gap: var(--app-space-1);
+}
+
+.issue-list__heading {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--app-space-2);
+}
+
+.issue-list__title {
+	font-size: var(--text-sm);
+	line-height: var(--text-sm--line-height);
+	font-weight: 600;
+}
+
+.issue-list__detail {
+	margin: 0;
+	font-size: var(--text-sm);
+	line-height: var(--text-sm--line-height);
+}
+
+/*
+ * The field ids an issue points at. They are chips rather than prose, so they
+ * sit on the panel surface instead of the banner tint and step back to the
+ * subtle text colour — the detail above is the part worth reading first.
+ */
+.issue-list__fields {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--app-space-1);
+	margin: 0;
+}
+
+.issue-list__fields code {
+	background-color: var(--color-kumo-base);
+	color: var(--text-color-kumo-subtle);
+	font-size: var(--text-xs);
+	line-height: var(--text-xs--line-height);
+}

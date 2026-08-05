@@ -89,7 +89,7 @@ export const networkSection: SectionDef = {
 					label: "Name",
 					type: "text",
 					placeholder: "http",
-					width: "w-32",
+					width: "md",
 					hint: "Optional label for the port entry.",
 				},
 				{
@@ -109,7 +109,7 @@ export const networkSection: SectionDef = {
 							hint: "Rarely used; requires kernel support.",
 						},
 					],
-					width: "w-32",
+					width: "md",
 					hint: "Transport protocol.",
 				},
 				{
@@ -117,7 +117,7 @@ export const networkSection: SectionDef = {
 					label: "Target port",
 					type: "number",
 					placeholder: "8080",
-					width: "w-32",
+					width: "md",
 					hint: "The port the process listens on inside the container.",
 				},
 				{
@@ -125,7 +125,7 @@ export const networkSection: SectionDef = {
 					label: "Published port",
 					type: "number",
 					placeholder: "80",
-					width: "w-36",
+					width: "lg",
 					hint: "The port exposed on the swarm nodes.",
 				},
 				{
@@ -144,7 +144,7 @@ export const networkSection: SectionDef = {
 							hint: "Bind directly on the node running the task; blocks start-first rollouts.",
 						},
 					],
-					width: "w-36",
+					width: "lg",
 					hint: "Whether the port goes through the routing mesh.",
 				},
 			],

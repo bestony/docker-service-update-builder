@@ -1,0 +1,137 @@
+/*
+ * Field guide routes: the post index and a single post.
+ *
+ * Both routes are built from the shared `.page` / `.panel` scaffolding, so what
+ * is left here is the card grid, the small muted metadata lines, and `.blog-chip`
+ * — a link that has to look like a button. The chip is deliberately not a Kumo
+ * `Button`: these are navigations, so they must stay anchors that middle-click,
+ * open in a new tab and copy as a URL. It is shared by both routes rather than
+ * scoped to one, which is why it is its own block.
+ */
+
+/* --- Index ---------------------------------------------------------------- */
+
+/*
+ * One column on phones, two from the point where a card still holds a readable
+ * summary. `minmax(0, 1fr)` rather than `1fr` so a long unbroken token in a
+ * title cannot push a column past its share.
+ */
+.blog-index__grid {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: var(--app-space-4);
+}
+
+@media (min-width: 40rem) {
+	.blog-index__grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
+
+.blog-index__card {
+	transition:
+		border-color var(--app-transition),
+		box-shadow var(--app-transition);
+}
+
+.blog-index__card:hover {
+	border-color: var(--color-kumo-line);
+	box-shadow: var(--app-shadow-raised);
+}
+
+/* Badges plus the reading time, wrapping together on narrow cards. */
+.blog-index__meta {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--app-space-2);
+}
+
+.blog-index__reading {
+	color: var(--text-color-kumo-subtle);
+	font-size: var(--text-xs);
+	line-height: var(--text-xs--line-height);
+}
+
+/*
+ * The card title is a heading that happens to be clickable, so it keeps the
+ * heading colour instead of the link colour and earns its underline on hover.
+ */
+.blog-index__title-link {
+	color: inherit;
+	text-decoration: none;
+}
+
+.blog-index__title-link:hover {
+	color: var(--color-kumo-brand);
+	text-decoration: underline;
+}
+
+/* --- Post ----------------------------------------------------------------- */
+
+/* Prose needs more air between blocks than the default panel rhythm gives. */
+.blog-post__article {
+	gap: var(--app-space-4);
+}
+
+.blog-post__meta {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--app-space-2);
+}
+
+.blog-post__byline {
+	color: var(--text-color-kumo-subtle);
+	font-size: var(--text-xs);
+	line-height: var(--text-xs--line-height);
+}
+
+.blog-post__section-links {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--app-space-2);
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+/* `.page` is a stretch-aligned column; without this the link spans the measure. */
+.blog-post__back {
+	align-self: start;
+	font-size: var(--text-sm);
+	line-height: var(--text-sm--line-height);
+}
+
+/* --- Not found ------------------------------------------------------------ */
+
+.blog-not-found {
+	align-items: center;
+	max-width: 32rem;
+	text-align: center;
+}
+
+/* --- Chip ----------------------------------------------------------------- */
+
+.blog-chip {
+	display: inline-flex;
+	align-items: center;
+	border: 1px solid var(--color-kumo-line);
+	border-radius: var(--app-radius-md);
+	background-color: var(--color-kumo-fill);
+	padding: var(--app-space-1) var(--app-space-3);
+	color: var(--text-color-kumo-default);
+	font-size: var(--text-sm);
+	line-height: var(--text-sm--line-height);
+	text-decoration: none;
+	transition:
+		background-color var(--app-transition),
+		border-color var(--app-transition),
+		color var(--app-transition);
+}
+
+.blog-chip:hover {
+	border-color: var(--color-kumo-interact);
+	background-color: var(--color-kumo-fill-hover);
+	color: var(--text-color-kumo-strong);
+}

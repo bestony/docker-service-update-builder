@@ -1,0 +1,158 @@
+/*
+ * FieldEditor — one field of the catalog: its switch, its editor, its story.
+ *
+ * Everything interactive here is a Kumo control, so this file only owns the
+ * card, the header stack and the reference list at the bottom. Two states are
+ * worth naming: `--flagged` marks the field a validation issue points at, and
+ * `--dimmed` marks a field that is switched off and therefore contributes
+ * nothing to the generated spec.
+ */
+
+.field-editor {
+	/*
+	 * Kumo's checkbox control is 1rem wide with a 0.5rem gap before its label,
+	 * which is where the field title starts. The prose under the title lines up
+	 * with the title rather than with the box.
+	 */
+	--field-editor-indent: 1.5rem;
+
+	display: flex;
+	flex-direction: column;
+	gap: var(--app-space-3);
+	border: 1px solid var(--color-kumo-hairline);
+	border-radius: var(--app-radius-lg);
+	background-color: var(--color-kumo-elevated);
+	padding: var(--app-space-4);
+	transition:
+		border-color var(--app-transition),
+		opacity var(--app-transition);
+}
+
+/* The only pointer the validator has at a single field, so it takes the loudest hue available. */
+.field-editor--flagged {
+	border-color: var(--color-kumo-danger);
+}
+
+/* Off, not disabled: the card stays fully interactive, it just says nothing yet. */
+.field-editor--dimmed {
+	opacity: 0.7;
+}
+
+.field-editor__header {
+	display: flex;
+	flex-direction: column;
+	gap: var(--app-space-1);
+}
+
+/*
+ * The toggle's label carries both names the field goes by — the human title and
+ * the literal JSON key — so it is laid out as a wrapping row, not a line of
+ * text. The key drops the label's weight to stay subordinate to the title.
+ */
+.field-editor__title {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	column-gap: var(--app-space-2);
+	row-gap: var(--app-space-1);
+	color: var(--text-color-kumo-strong);
+	font-size: var(--text-sm);
+	font-weight: 700;
+}
+
+.field-editor__title code {
+	font-weight: 400;
+}
+
+.field-editor__summary,
+.field-editor__path {
+	margin: 0;
+	padding-inline-start: var(--field-editor-indent);
+	color: var(--text-color-kumo-subtle);
+}
+
+.field-editor__summary {
+	font-size: var(--text-sm);
+}
+
+.field-editor__path {
+	font-size: var(--text-xs);
+}
+
+.field-editor__controls,
+.field-editor__choice {
+	display: flex;
+	flex-direction: column;
+	gap: var(--app-space-2);
+}
+
+/* Amount and unit are one control split in two, so they share a row and wrap together. */
+.field-editor__units {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--app-space-2);
+}
+
+.field-editor__amount {
+	/* Takes whatever width the unit picker does not need. */
+	flex: 1 1 8rem;
+	min-width: 0;
+}
+
+.field-editor__input {
+	width: 100%;
+}
+
+/*
+ * One entry per line, so the box is monospaced and starts tall enough to show
+ * the shape of a short list. It resizes vertically only — a wider textarea
+ * would break out of the card.
+ */
+.field-editor__lines {
+	width: 100%;
+	min-height: 6rem;
+	resize: vertical;
+	font-family: var(--font-mono);
+	font-size: var(--text-sm);
+}
+
+/* Left-aligned in a stretching column, so it hugs its own label. */
+.field-editor__disclosure {
+	align-self: flex-start;
+}
+
+.field-editor__details {
+	display: flex;
+	flex-direction: column;
+	gap: var(--app-space-2);
+	border-block-start: 1px solid var(--color-kumo-hairline);
+	padding-block-start: var(--app-space-3);
+}
+
+/*
+ * The API default, the CLI flag and the Compose key: three optional one-line
+ * cross-references, each a term and its value on the same row until the value
+ * is too long to fit beside it.
+ */
+.field-editor__meta {
+	display: grid;
+	gap: var(--app-space-1);
+	margin: 0;
+	color: var(--text-color-kumo-subtle);
+	font-size: var(--text-xs);
+}
+
+.field-editor__meta-row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--app-space-2);
+}
+
+.field-editor__meta dt {
+	font-weight: 700;
+}
+
+.field-editor__meta dd {
+	margin: 0;
+	min-width: 0;
+}

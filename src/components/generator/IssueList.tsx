@@ -1,12 +1,23 @@
+import { Badge, type BadgeVariant, Banner, Text } from "@cloudflare/kumo";
 import { useSelector } from "@tanstack/react-store";
+import type { ComponentProps } from "react";
 import type { IssueLevel } from "#/docker/validate";
 import { issuesAtom } from "#/store/generator-store";
 import InlineText from "../InlineText";
 
-const LEVEL_STYLE: Record<IssueLevel, string> = {
-	error: "demo-alert demo-alert-danger",
-	warning: "demo-alert",
-	info: "demo-list-item",
+type BannerVariant = ComponentProps<typeof Banner>["variant"];
+
+const LEVEL_STYLE: Record<IssueLevel, BannerVariant> = {
+	error: "error",
+	warning: "alert",
+	info: "secondary",
+};
+
+/** Kept in step with `LEVEL_STYLE` so the badge reads as part of its banner. */
+const LEVEL_BADGE: Record<IssueLevel, BadgeVariant> = {
+	error: "error",
+	warning: "warning",
+	info: "neutral",
 };
 
 const LEVEL_LABEL: Record<IssueLevel, string> = {
@@ -25,46 +36,46 @@ export default function IssueList() {
 
 	if (issues.length === 0) {
 		return (
-			<div className="demo-panel">
-				<p className="island-kicker mb-2">Review</p>
-				<p className="m-0 text-sm text-[var(--sea-ink-soft)]">
+			<div className="panel issue-list">
+				<p className="kicker">Review</p>
+				<Text variant="secondary" size="sm">
 					No conflicts detected in the current selection.
-				</p>
+				</Text>
 			</div>
 		);
 	}
 
 	return (
-		<div className="demo-panel flex flex-col gap-3">
-			<div>
-				<p className="island-kicker mb-1">Review</p>
-				<h2 className="demo-section-title">
+		<div className="panel issue-list">
+			<div className="issue-list__header">
+				<p className="kicker">Review</p>
+				<Text variant="heading3" as="h2">
 					{issues.length} thing{issues.length === 1 ? "" : "s"} to check
-				</h2>
+				</Text>
 			</div>
 
 			{issues.map((issue) => (
-				<div
+				<Banner
 					key={`${issue.level}-${issue.title}`}
-					className={`${LEVEL_STYLE[issue.level]} flex flex-col gap-1`}
+					variant={LEVEL_STYLE[issue.level]}
 				>
-					<div className="flex flex-wrap items-center gap-2">
-						<span className="demo-pill">{LEVEL_LABEL[issue.level]}</span>
-						<strong className="text-sm text-[var(--sea-ink)]">
-							{issue.title}
-						</strong>
+					<div className="issue-list__issue">
+						<div className="issue-list__heading">
+							<Badge variant={LEVEL_BADGE[issue.level]}>
+								{LEVEL_LABEL[issue.level]}
+							</Badge>
+							<strong className="issue-list__title">{issue.title}</strong>
+						</div>
+						<p className="issue-list__detail">
+							<InlineText text={issue.detail} />
+						</p>
+						<p className="issue-list__fields">
+							{issue.fieldIds.map((fieldId) => (
+								<code key={fieldId}>{fieldId}</code>
+							))}
+						</p>
 					</div>
-					<p className="m-0 text-sm text-[var(--sea-ink-soft)]">
-						<InlineText text={issue.detail} />
-					</p>
-					<p className="m-0 text-xs text-[var(--sea-ink-soft)]">
-						{issue.fieldIds.map((fieldId) => (
-							<code key={fieldId} className="mr-2 text-[0.7rem]">
-								{fieldId}
-							</code>
-						))}
-					</p>
-				</div>
+				</Banner>
 			))}
 		</div>
 	);

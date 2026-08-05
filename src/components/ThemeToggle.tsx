@@ -1,6 +1,26 @@
+import { Button } from "@cloudflare/kumo";
+import { CircleHalfIcon, MoonIcon, SunIcon } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
 
 type ThemeMode = "light" | "dark" | "auto";
+
+const NEXT_MODE: Record<ThemeMode, ThemeMode> = {
+	light: "dark",
+	dark: "auto",
+	auto: "light",
+};
+
+const ICON = {
+	light: SunIcon,
+	dark: MoonIcon,
+	auto: CircleHalfIcon,
+} as const;
+
+const LABEL: Record<ThemeMode, string> = {
+	light: "Light",
+	dark: "Dark",
+	auto: "Auto",
+};
 
 function getInitialMode(): ThemeMode {
 	if (typeof window === "undefined") {
@@ -15,19 +35,17 @@ function getInitialMode(): ThemeMode {
 	return "auto";
 }
 
+/**
+ * Kumo's palette resolves through CSS `light-dark()`, so the resolved mode has
+ * to land on both `color-scheme` and `data-mode`: the first drives the token
+ * values, the second drives Kumo's explicit dark overrides. This mirrors the
+ * inline boot script in `__root.tsx` — keep the two in step.
+ */
 function applyThemeMode(mode: ThemeMode) {
 	const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
 	const resolved = mode === "auto" ? (prefersDark ? "dark" : "light") : mode;
 
-	document.documentElement.classList.remove("light", "dark");
-	document.documentElement.classList.add(resolved);
-
-	if (mode === "auto") {
-		document.documentElement.removeAttribute("data-theme");
-	} else {
-		document.documentElement.setAttribute("data-theme", mode);
-	}
-
+	document.documentElement.setAttribute("data-mode", resolved);
 	document.documentElement.style.colorScheme = resolved;
 }
 
@@ -55,8 +73,7 @@ export default function ThemeToggle() {
 	}, [mode]);
 
 	function toggleMode() {
-		const nextMode: ThemeMode =
-			mode === "light" ? "dark" : mode === "dark" ? "auto" : "light";
+		const nextMode = NEXT_MODE[mode];
 		setMode(nextMode);
 		applyThemeMode(nextMode);
 		window.localStorage.setItem("theme", nextMode);
@@ -64,18 +81,19 @@ export default function ThemeToggle() {
 
 	const label =
 		mode === "auto"
-			? "Theme mode: auto (system). Click to switch to light mode."
-			: `Theme mode: ${mode}. Click to switch mode.`;
+			? "Theme: auto (follows the system). Click to switch to light."
+			: `Theme: ${mode}. Click to switch to ${NEXT_MODE[mode]}.`;
 
 	return (
-		<button
-			type="button"
+		<Button
+			variant="secondary"
+			size="sm"
+			icon={ICON[mode]}
 			onClick={toggleMode}
 			aria-label={label}
 			title={label}
-			className="rounded-full border border-[var(--chip-line)] bg-[var(--chip-bg)] px-3 py-1.5 text-sm font-semibold text-[var(--sea-ink)] shadow-[0_8px_22px_rgba(30,90,72,0.08)] transition hover:-translate-y-0.5"
 		>
-			{mode === "auto" ? "Auto" : mode === "dark" ? "Dark" : "Light"}
-		</button>
+			<span className="theme-toggle__label">{LABEL[mode]}</span>
+		</Button>
 	);
 }

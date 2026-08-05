@@ -117,7 +117,7 @@ export const resourcesSection: SectionDef = {
 					label: "Count",
 					type: "number",
 					placeholder: "3",
-					width: "w-24",
+					width: "sm",
 					hint: "How many units of that resource this task needs.",
 				},
 				{

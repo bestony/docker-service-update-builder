@@ -52,7 +52,7 @@ export const storageSection: SectionDef = {
 							hint: "Swarm cluster volume (CSI).",
 						},
 					],
-					width: "w-40",
+					width: "lg",
 					hint: "Which mount mechanism to use.",
 				},
 				{
@@ -73,7 +73,7 @@ export const storageSection: SectionDef = {
 					key: "ReadOnly",
 					label: "Read-only",
 					type: "boolean",
-					width: "w-32",
+					width: "md",
 					hint: "Mount without write access.",
 				},
 				{
@@ -104,7 +104,7 @@ export const storageSection: SectionDef = {
 						},
 						{ value: "slave", label: "slave", hint: "Host to container only." },
 					],
-					width: "w-40",
+					width: "lg",
 					hint: "Bind mounts only: how mount events propagate between host and container.",
 				},
 				{
@@ -165,7 +165,7 @@ export const storageSection: SectionDef = {
 					label: "UID",
 					type: "text",
 					placeholder: "0",
-					width: "w-24",
+					width: "sm",
 					hint: "Owner uid of the mounted file.",
 				},
 				{
@@ -173,7 +173,7 @@ export const storageSection: SectionDef = {
 					label: "GID",
 					type: "text",
 					placeholder: "0",
-					width: "w-24",
+					width: "sm",
 					hint: "Owner gid of the mounted file.",
 				},
 				{
@@ -181,7 +181,7 @@ export const storageSection: SectionDef = {
 					label: "Mode (decimal)",
 					type: "number",
 					placeholder: "292",
-					width: "w-36",
+					width: "lg",
 					hint: "File mode as a decimal integer. 0444 = 292, 0400 = 256.",
 				},
 			],
@@ -226,7 +226,7 @@ export const storageSection: SectionDef = {
 					label: "UID",
 					type: "text",
 					placeholder: "0",
-					width: "w-24",
+					width: "sm",
 					hint: "Owner uid of the mounted file.",
 				},
 				{
@@ -234,7 +234,7 @@ export const storageSection: SectionDef = {
 					label: "GID",
 					type: "text",
 					placeholder: "0",
-					width: "w-24",
+					width: "sm",
 					hint: "Owner gid of the mounted file.",
 				},
 				{
@@ -242,7 +242,7 @@ export const storageSection: SectionDef = {
 					label: "Mode (decimal)",
 					type: "number",
 					placeholder: "292",
-					width: "w-36",
+					width: "lg",
 					hint: "File mode as a decimal integer. 0444 = 292.",
 				},
 			],

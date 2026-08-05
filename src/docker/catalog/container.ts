@@ -331,7 +331,7 @@ export const runtimeSection: SectionDef = {
 					label: "Soft",
 					type: "number",
 					placeholder: "65536",
-					width: "w-28",
+					width: "md",
 					hint: "The value actually enforced at start.",
 				},
 				{
@@ -339,7 +339,7 @@ export const runtimeSection: SectionDef = {
 					label: "Hard",
 					type: "number",
 					placeholder: "65536",
-					width: "w-28",
+					width: "md",
 					hint: "The maximum the process may raise the soft limit to.",
 				},
 			],

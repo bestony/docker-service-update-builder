@@ -1,0 +1,123 @@
+/*
+ * The repeatable-rows editor: one recessed card per entry, one labelled cell
+ * per column.
+ *
+ * Column widths come from the catalog as `sm` / `md` / `lg` hints, which lands
+ * awkwardly on Grid: a track sizing function is a property of the *grid*, so an
+ * item cannot ask for a wider track. The way out is to make the track small and
+ * uniform and let each cell span as many of them as its hint is worth — that
+ * keeps every cell's minimum width guaranteed by the track maths (a spanned
+ * track is never empty, so `auto-fit` cannot collapse it) instead of by a
+ * `min-width` the grid would happily overflow.
+ */
+
+.rows-editor {
+	/*
+	 * Base track. Deliberately finer than any real column so the width steps
+	 * land on whole spans: sm / md / default / lg take 3 / 4 / 5 / 6 tracks,
+	 * which with the grid gap is 7.5rem / 10.25rem / 13rem / 15.75rem at their
+	 * narrowest. Free text has no hint, so its default sits above `md`.
+	 */
+	--rows-editor-track: 2rem;
+
+	display: flex;
+	flex-direction: column;
+	gap: var(--app-space-3);
+}
+
+/* One entry. Recessed rather than raised — it sits inside a panel, not on the canvas. */
+.rows-editor__row {
+	display: flex;
+	flex-direction: column;
+	gap: var(--app-space-3);
+	border: 1px solid var(--color-kumo-hairline);
+	border-radius: var(--app-radius-lg);
+	background-color: var(--color-kumo-recessed);
+	padding: var(--app-space-3);
+}
+
+.rows-editor__row-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--app-space-3);
+}
+
+/* Stacked on mobile: a structured row is too wide to split at phone widths. */
+.rows-editor__grid {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: var(--app-space-3);
+}
+
+.rows-editor__cell {
+	display: flex;
+	flex-direction: column;
+	gap: var(--app-space-1);
+	/* Without this the cell's min-content size (a bare `<input>` is ~10rem wide)
+	   would push it out of the tracks it was given. */
+	min-width: 0;
+}
+
+.rows-editor__label {
+	display: flex;
+	align-items: baseline;
+	/* A narrow column plus a long key (`VolumeOptions.DriverConfig.Name`) needs
+	   the key to be allowed onto its own line. */
+	flex-wrap: wrap;
+	gap: var(--app-space-2);
+	color: var(--text-color-kumo-strong);
+	font-size: var(--text-xs);
+	font-weight: 700;
+	line-height: var(--text-xs--line-height);
+}
+
+/* The JSON key beside the human label: the same size, but not shouting. */
+.rows-editor__label code {
+	font-weight: 400;
+}
+
+/*
+ * Aligns a checkbox with the controls beside it, which are one Kumo `base`
+ * tall. The gap is ours because the state word is a plain sibling rather than
+ * the checkbox's `label` — see the comment in RowsEditor's boolean cell.
+ */
+.rows-editor__toggle {
+	display: flex;
+	align-items: center;
+	gap: var(--app-space-2);
+	min-height: 2.25rem;
+	color: var(--text-color-kumo-subtle);
+	font-size: var(--text-sm);
+	line-height: var(--text-sm--line-height);
+}
+
+.rows-editor__actions {
+	display: flex;
+}
+
+@media (min-width: 40rem) {
+	.rows-editor__grid {
+		grid-template-columns: repeat(
+				auto-fit,
+				minmax(var(--rows-editor-track), 1fr)
+			);
+	}
+
+	/* Columns with no width hint sit between `md` and `lg`: free text needs room. */
+	.rows-editor__cell {
+		grid-column: span 5;
+	}
+
+	.rows-editor__cell[data-width="sm"] {
+		grid-column: span 3;
+	}
+
+	.rows-editor__cell[data-width="md"] {
+		grid-column: span 4;
+	}
+
+	.rows-editor__cell[data-width="lg"] {
+		grid-column: span 6;
+	}
+}

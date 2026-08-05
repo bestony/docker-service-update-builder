@@ -1,0 +1,46 @@
+/*
+ * PresetBar.
+ *
+ * The preset row is Kumo `Button`s inside a `.panel`, so this file only owns
+ * what Kumo has no opinion about: how the row wraps, and the recessed block
+ * that explains whichever preset is currently applied. That block sits on
+ * `--color-kumo-recessed` rather than a border alone — it reads as a quiet
+ * inset note instead of competing with the panel it lives in.
+ */
+
+.preset-bar__intro {
+	display: flex;
+	flex-direction: column;
+	gap: var(--app-space-1);
+}
+
+/*
+ * Centring the cross axis matters once a long preset title wraps: without it a
+ * two-line button stretches and the row loses its shared button height.
+ */
+.preset-bar__options {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--app-space-2);
+}
+
+.preset-bar__detail {
+	display: flex;
+	flex-direction: column;
+	gap: var(--app-space-1);
+	border: 1px solid var(--color-kumo-hairline);
+	border-radius: var(--app-radius-lg);
+	background-color: var(--color-kumo-recessed);
+	padding: var(--app-space-3) var(--app-space-4);
+}
+
+/*
+ * Pre-emptive: no preset rationale uses inline code today, but the rest of the
+ * catalog prose does, and `InlineText` would render it here the moment one
+ * does. Inline code defaults to the recessed fill, which on this recessed
+ * surface would be invisible — the base surface keeps it legible.
+ */
+.preset-bar__detail code {
+	background-color: var(--color-kumo-base);
+}

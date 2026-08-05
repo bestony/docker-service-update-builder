@@ -43,8 +43,12 @@ export interface RowColumn {
 	type: "text" | "number" | "boolean" | "select";
 	options?: Array<SelectOption>;
 	placeholder?: string;
-	/** Tailwind width class used to keep the row grid readable. */
-	width?: string;
+	/**
+	 * Relative column width in the row grid. A hint, not a measurement — the
+	 * editor maps it to a track size so a port number and a mount path do not
+	 * get the same amount of room.
+	 */
+	width?: "sm" | "md" | "lg";
 	/** Serialise the cell as an array by splitting the entered text. */
 	split?: "comma";
 	hint: string;

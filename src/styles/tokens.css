@@ -1,0 +1,50 @@
+/*
+ * App-level design tokens.
+ *
+ * Colour, typography and elevation come from Kumo (`--color-kumo-*`,
+ * `--text-color-kumo-*`, `--font-sans`, `--text-*`) and are never redefined
+ * here — re-theming Kumo would defeat the point of adopting it. What this file
+ * adds is the handful of layout primitives Kumo has no opinion about: how wide
+ * a page is, how far apart stacked blocks sit, and how corners and motion are
+ * scaled across the app.
+ *
+ * Kumo resolves light/dark through CSS `light-dark()`, which keys off the
+ * `color-scheme` property. `data-mode` on <html> flips both that and Kumo's own
+ * token overrides — see ThemeToggle and the inline boot script in __root.tsx.
+ */
+
+:root {
+	/* Page measures. `--app-gutter` is the minimum breathing room at the viewport edge. */
+	--app-width: 1080px;
+	--app-width-wide: 1280px;
+	--app-gutter: 1rem;
+
+	/* Spacing scale. Deliberately short — more steps invite inconsistency. */
+	--app-space-1: 0.25rem;
+	--app-space-2: 0.5rem;
+	--app-space-3: 0.75rem;
+	--app-space-4: 1rem;
+	--app-space-5: 1.5rem;
+	--app-space-6: 2rem;
+	--app-space-7: 3rem;
+
+	/* Corner radii, matched to Kumo's own control radii so panels sit flush with buttons. */
+	--app-radius-sm: 0.375rem;
+	--app-radius-md: 0.5rem;
+	--app-radius-lg: 0.75rem;
+	--app-radius-xl: 1rem;
+
+	--app-transition: 160ms ease;
+
+	/* Elevation, expressed through Kumo's shadow tokens so it tracks the theme. */
+	--app-shadow-panel: 0 1px 2px var(--color-kumo-shadow-drop);
+	--app-shadow-raised:
+		0 1px 2px var(--color-kumo-shadow-edge),
+		0 8px 24px var(--color-kumo-shadow-drop);
+}
+
+/*
+ * Motion is opt-out at the point of use rather than globally: the app animates
+ * in exactly one place (`.rise-in`), so a blanket `!important` override would
+ * be a lot of cascade damage to solve a problem we do not have.
+ */

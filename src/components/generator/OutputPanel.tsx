@@ -1,3 +1,5 @@
+import { Button, Link, Tabs, Text } from "@cloudflare/kumo";
+import { DownloadSimpleIcon } from "@phosphor-icons/react";
 import { useSelector } from "@tanstack/react-store";
 import { countActiveFields } from "#/docker/build-spec";
 import { API_DOC_URL, API_VERSION, buildUpdatePath } from "#/docker/request";
@@ -24,6 +26,20 @@ const FORMATS: Array<{ id: OutputFormat; label: string; hint: string }> = [
 	},
 ];
 
+const FORMAT_TABS = FORMATS.map((entry) => ({
+	value: entry.id,
+	label: entry.label,
+}));
+
+/**
+ * Tabs reports the active tab as a bare string. Looking the id back up in
+ * FORMATS narrows it without a cast, and ignores anything we did not put there.
+ */
+function selectFormat(value: string) {
+	const entry = FORMATS.find((candidate) => candidate.id === value);
+	if (entry) generatorStore.actions.setFormat(entry.id);
+}
+
 function downloadFilename(format: OutputFormat): string {
 	if (format === "yaml") return "service-update.yaml";
 	if (format === "curl") return "service-update.sh";
@@ -49,24 +65,25 @@ export default function OutputPanel() {
 	const requestOptions = useSelector(requestOptionsAtom);
 
 	return (
-		<div className="flex flex-col gap-4">
-			<div className="demo-panel flex flex-col gap-4">
-				<div className="flex flex-wrap items-center justify-between gap-3">
-					<div>
-						<p className="island-kicker mb-1">Generated object</p>
-						<h2 className="demo-section-title">
+		<div className="output-panel">
+			<div className="panel">
+				<div className="output-panel__header">
+					<div className="output-panel__title">
+						<p className="kicker">Generated object</p>
+						<Text variant="heading3" as="h2">
 							{activeCount} field{activeCount === 1 ? "" : "s"} included
-						</h2>
+						</Text>
 					</div>
-					<div className="flex flex-wrap gap-2">
+					<div className="output-panel__actions">
 						<CopyButton getText={() => output.text} label="Copy" />
-						<button
-							type="button"
-							className="demo-button demo-button-secondary px-3 py-2 text-xs"
+						<Button
+							variant="secondary"
+							size="sm"
+							icon={DownloadSimpleIcon}
 							onClick={() => download(output.text, downloadFilename(format))}
 						>
 							Download
-						</button>
+						</Button>
 						<CopyButton
 							getText={() => window.location.href}
 							label="Copy permalink"
@@ -74,45 +91,35 @@ export default function OutputPanel() {
 					</div>
 				</div>
 
-				<div className="flex flex-wrap gap-2">
-					{FORMATS.map((entry) => (
-						<button
-							key={entry.id}
-							type="button"
-							title={entry.hint}
-							className={`demo-button px-3 py-2 text-xs ${
-								format === entry.id ? "" : "demo-button-secondary"
-							}`}
-							onClick={() => generatorStore.actions.setFormat(entry.id)}
-						>
-							{entry.label}
-						</button>
-					))}
-				</div>
+				<Tabs
+					className="output-panel__formats"
+					variant="segmented"
+					size="sm"
+					tabs={FORMAT_TABS}
+					value={format}
+					onValueChange={selectFormat}
+				/>
 
-				<p className="m-0 text-xs text-[var(--sea-ink-soft)]">
+				<Text variant="secondary" size="xs">
 					{FORMATS.find((entry) => entry.id === format)?.hint}
-				</p>
+				</Text>
 
-				<pre className="demo-code-block m-0 max-h-[28rem] overflow-auto text-xs leading-relaxed">
+				<pre className="output-panel__code">
 					<code>{output.text}</code>
 				</pre>
 
 				{format !== "curl" ? (
-					<p className="m-0 text-xs text-[var(--sea-ink-soft)]">
-						Endpoint:{" "}
-						<code className="text-[0.7rem]">
-							POST {buildUpdatePath(requestOptions)}
-						</code>
-					</p>
+					<Text variant="secondary" size="xs">
+						Endpoint: <code>POST {buildUpdatePath(requestOptions)}</code>
+					</Text>
 				) : null}
 
-				<p className="m-0 text-xs text-[var(--sea-ink-soft)]">
+				<Text variant="secondary" size="xs">
 					Engine API {API_VERSION} —{" "}
-					<a href={API_DOC_URL} target="_blank" rel="noreferrer">
+					<Link href={API_DOC_URL} target="_blank" rel="noreferrer">
 						ServiceUpdate reference
-					</a>
-				</p>
+					</Link>
+				</Text>
 			</div>
 
 			<IssueList />
