@@ -1,0 +1,17 @@
+node_modules
+.DS_Store
+dist
+dist-ssr
+*.local
+.env
+.nitro
+.tanstack
+.wrangler
+.output
+.vinxi
+__unconfig*
+todos.json
+
+# AGENTS.md is the durable project context and must be versioned here, even
+# though a global gitignore excludes it by default.
+!AGENTS.md
