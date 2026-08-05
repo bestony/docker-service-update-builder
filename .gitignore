@@ -15,3 +15,8 @@ todos.json
 # AGENTS.md is the durable project context and must be versioned here, even
 # though a global gitignore excludes it by default.
 !AGENTS.md
+
+# Same story for public/: a global `Public/` rule matches it on case-insensitive
+# filesystems, which would silently drop the Workers Assets `_headers` file from
+# the repo — and therefore from the deployed build.
+!public/
