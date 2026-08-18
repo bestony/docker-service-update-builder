@@ -1,17 +1,19 @@
 import { Text } from "@cloudflare/kumo";
 import { GithubLogoIcon, XLogoIcon } from "@phosphor-icons/react";
+import { useI18n } from "../i18n";
 
 export default function Footer() {
 	const year = new Date().getFullYear();
+	const { t } = useI18n();
 
 	return (
 		<footer className="footer">
 			<div className="footer__inner">
 				<div className="footer__row">
 					<Text variant="secondary" size="sm">
-						&copy; {year} Your name here. All rights reserved.
+						{t("footer.copyright", { year })}
 					</Text>
-					<p className="kicker">Built with TanStack Start</p>
+					<p className="kicker">{t("footer.builtWith")}</p>
 				</div>
 				<div className="footer__links">
 					<a
@@ -20,7 +22,7 @@ export default function Footer() {
 						rel="noreferrer"
 						className="footer__link"
 					>
-						<span className="visually-hidden">Follow TanStack on X</span>
+						<span className="visually-hidden">{t("nav.followX")}</span>
 						<XLogoIcon size={24} aria-hidden="true" />
 					</a>
 					<a
@@ -29,7 +31,7 @@ export default function Footer() {
 						rel="noreferrer"
 						className="footer__link"
 					>
-						<span className="visually-hidden">Go to TanStack GitHub</span>
+						<span className="visually-hidden">{t("nav.github")}</span>
 						<GithubLogoIcon size={24} aria-hidden="true" />
 					</a>
 				</div>

@@ -1,6 +1,8 @@
 import { LinkButton } from "@cloudflare/kumo";
 import { GithubLogoIcon, XLogoIcon } from "@phosphor-icons/react";
 import { Link } from "@tanstack/react-router";
+import { useI18n } from "../i18n";
+import LanguageToggle from "./LanguageToggle";
 import ThemeToggle from "./ThemeToggle";
 
 /**
@@ -11,13 +13,15 @@ import ThemeToggle from "./ThemeToggle";
 const NAV_ACTIVE_PROPS = { className: "site-nav__link--active" };
 
 export default function Header() {
+	const { t } = useI18n();
+
 	return (
 		<header className="site-header">
 			<nav className="site-header__inner">
 				<h2 className="site-header__brand">
 					<Link to="/" className="site-header__brand-link">
 						<span className="site-header__brand-dot" aria-hidden="true" />
-						Service Update Builder
+						{t("nav.brand")}
 					</Link>
 				</h2>
 
@@ -27,21 +31,21 @@ export default function Header() {
 						className="site-nav__link"
 						activeProps={NAV_ACTIVE_PROPS}
 					>
-						Builder
+						{t("nav.builder")}
 					</Link>
 					<Link
 						to="/blog"
 						className="site-nav__link"
 						activeProps={NAV_ACTIVE_PROPS}
 					>
-						Field guide
+						{t("nav.fieldGuide")}
 					</Link>
 					<Link
 						to="/about"
 						className="site-nav__link"
 						activeProps={NAV_ACTIVE_PROPS}
 					>
-						About
+						{t("nav.about")}
 					</Link>
 					<a
 						href="https://docs.docker.com/reference/api/engine/version/v1.43/#tag/Service/operation/ServiceUpdate"
@@ -49,19 +53,19 @@ export default function Header() {
 						target="_blank"
 						rel="noreferrer"
 					>
-						API docs
+						{t("nav.apiDocs")}
 					</a>
 					{/* Stays a native <details> so the menu still opens before hydration. */}
 					<details className="site-nav__menu">
 						<summary className="site-nav__link site-nav__menu-summary">
-							Demos
+							{t("nav.demos")}
 						</summary>
 						<div className="site-nav__menu-panel">
 							<a href="/demo/tanstack-query" className="site-nav__menu-item">
-								TanStack Query
+								{t("nav.queryDemo")}
 							</a>
 							<a href="/demo/store" className="site-nav__menu-item">
-								Store
+								{t("nav.storeDemo")}
 							</a>
 						</div>
 					</details>
@@ -76,7 +80,7 @@ export default function Header() {
 						variant="ghost"
 						className="site-header__social"
 						icon={<XLogoIcon size={16} aria-hidden="true" />}
-						aria-label="Follow TanStack on X"
+						aria-label={t("nav.followX")}
 					/>
 					<LinkButton
 						href="https://github.com/TanStack"
@@ -86,9 +90,10 @@ export default function Header() {
 						variant="ghost"
 						className="site-header__social"
 						icon={<GithubLogoIcon size={16} aria-hidden="true" />}
-						aria-label="Go to TanStack GitHub"
+						aria-label={t("nav.github")}
 					/>
 
+					<LanguageToggle />
 					<ThemeToggle />
 				</div>
 			</nav>

@@ -3,6 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ALL_FIELDS, SECTIONS } from "#/docker/catalog";
 import { PRESETS } from "#/docker/presets";
 import { API_DOC_URL, API_VERSION } from "#/docker/request";
+import { useI18n } from "#/i18n";
 
 export const Route = createFileRoute("/about")({
 	component: About,
@@ -37,55 +38,40 @@ const STACK: Array<[string, string]> = [
 ];
 
 function About() {
+	const { t } = useI18n();
+
 	return (
 		<main className="page">
 			<section className="panel panel--hero about__hero">
-				<p className="kicker">About</p>
+				<p className="kicker">{t("about.kicker")}</p>
 				<Text variant="heading1" as="h1">
-					A visual editor for one specific JSON object.
+					{t("about.title")}
 				</Text>
 				<Text variant="secondary">
-					The Docker Engine API's <code>ServiceUpdate</code> body is deeply
-					nested, unit-free and unforgiving. This builder covers{" "}
-					{ALL_FIELDS.length} keys across {SECTIONS.length} sections of Engine
-					API {API_VERSION}, explains each one in plain language, and exports
-					the result as JSON, YAML or a runnable curl script.
+					{t("about.intro", {
+						fields: ALL_FIELDS.length,
+						sections: SECTIONS.length,
+						version: API_VERSION,
+					})}
 				</Text>
 			</section>
 
 			<section className="panel">
 				<Text variant="heading3" as="h2">
-					How it works
+					{t("about.howItWorks")}
 				</Text>
 				<ul className="about__list">
-					<li>
-						Every key is described as data in <code>src/docker/catalog/</code> —
-						its JSON path, editor type, prose, CLI flag and Compose equivalent.
-						Adding coverage is a data change, never a component change.
-					</li>
-					<li>
-						Numbers are edited in human units and serialised to the raw scalars
-						the API wants: nanoseconds, bytes and nano-CPUs.
-					</li>
-					<li>
-						Only the keys you tick are emitted, which is what makes the output a
-						usable diff rather than a whole spec.
-					</li>
-					<li>
-						A cross-field review flags the combinations the daemon rejects —
-						dnsrr with published ports, start-first with host-mode ports,
-						reservations above limits, and more.
-					</li>
-					<li>
-						{PRESETS.length} presets encode complete, defensible configurations
-						rather than single keys.
-					</li>
+					<li>{t("about.how1")}</li>
+					<li>{t("about.how2")}</li>
+					<li>{t("about.how3")}</li>
+					<li>{t("about.how4")}</li>
+					<li>{t("about.how5", { count: PRESETS.length })}</li>
 				</ul>
 			</section>
 
 			<section className="panel">
 				<Text variant="heading3" as="h2">
-					Stack
+					{t("about.stack")}
 				</Text>
 				<dl className="about__stack">
 					{STACK.map(([name, description]) => (
@@ -99,20 +85,17 @@ function About() {
 
 			<section className="panel">
 				<Text variant="heading3" as="h2">
-					Scope and honesty
+					{t("about.scope")}
 				</Text>
 				<Text variant="secondary" size="sm">
-					This app never talks to a Docker daemon. It has no backend, holds no
-					credentials, and cannot apply anything — it produces text you review
-					and run yourself. That is deliberate: the dangerous part of a service
-					update is the merge, and a tool that hides the merge would be worse
-					than no tool.
+					{t("about.scopeText")}
 				</Text>
 				<Text size="sm">
 					<a href={API_DOC_URL} target="_blank" rel="noreferrer">
-						Engine API {API_VERSION} — ServiceUpdate reference
+						{t("about.apiLink", { version: API_VERSION })}
 					</a>{" "}
-					· <Link to="/blog">Field guide</Link> · <Link to="/">Builder</Link>
+					· <Link to="/blog">{t("nav.fieldGuide")}</Link> ·{" "}
+					<Link to="/">{t("nav.builder")}</Link>
 				</Text>
 			</section>
 		</main>

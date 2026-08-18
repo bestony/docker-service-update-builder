@@ -2,6 +2,7 @@ import { Badge, type BadgeVariant, Banner, Text } from "@cloudflare/kumo";
 import { useSelector } from "@tanstack/react-store";
 import type { ComponentProps } from "react";
 import type { IssueLevel } from "#/docker/validate";
+import { type MessageKey, useI18n } from "#/i18n";
 import { issuesAtom } from "#/store/generator-store";
 import InlineText from "../InlineText";
 
@@ -20,10 +21,10 @@ const LEVEL_BADGE: Record<IssueLevel, BadgeVariant> = {
 	info: "neutral",
 };
 
-const LEVEL_LABEL: Record<IssueLevel, string> = {
-	error: "Will be rejected",
-	warning: "Likely a mistake",
-	info: "Worth knowing",
+const LEVEL_LABEL: Record<IssueLevel, MessageKey> = {
+	error: "review.error",
+	warning: "review.warning",
+	info: "review.info",
 };
 
 /**
@@ -32,14 +33,15 @@ const LEVEL_LABEL: Record<IssueLevel, string> = {
  * — rather than a clean validation failure.
  */
 export default function IssueList() {
+	const { t } = useI18n();
 	const issues = useSelector(issuesAtom);
 
 	if (issues.length === 0) {
 		return (
 			<div className="panel issue-list">
-				<p className="kicker">Review</p>
+				<p className="kicker">{t("review.title")}</p>
 				<Text variant="secondary" size="sm">
-					No conflicts detected in the current selection.
+					{t("review.none")}
 				</Text>
 			</div>
 		);
@@ -48,9 +50,12 @@ export default function IssueList() {
 	return (
 		<div className="panel issue-list">
 			<div className="issue-list__header">
-				<p className="kicker">Review</p>
+				<p className="kicker">{t("review.title")}</p>
 				<Text variant="heading3" as="h2">
-					{issues.length} thing{issues.length === 1 ? "" : "s"} to check
+					{t("review.thingsToCheck", {
+						count: issues.length,
+						suffix: issues.length === 1 ? "" : "s",
+					})}
 				</Text>
 			</div>
 
@@ -62,7 +67,7 @@ export default function IssueList() {
 					<div className="issue-list__issue">
 						<div className="issue-list__heading">
 							<Badge variant={LEVEL_BADGE[issue.level]}>
-								{LEVEL_LABEL[issue.level]}
+								{t(LEVEL_LABEL[issue.level])}
 							</Badge>
 							<strong className="issue-list__title">{issue.title}</strong>
 						</div>

@@ -22,6 +22,7 @@
 @import "./styles/header.css";
 @import "./styles/footer.css";
 @import "./styles/theme-toggle.css";
+@import "./styles/language-toggle.css";
 
 @import "./styles/home.css";
 @import "./styles/preset-bar.css";

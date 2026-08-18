@@ -3,9 +3,26 @@ import { useSelector } from "@tanstack/react-store";
 import { useState } from "react";
 import { isFieldActive } from "#/docker/build-spec";
 import type { FieldDef, SectionDef } from "#/docker/field-types";
+import { type MessageKey, useI18n } from "#/i18n";
 import { generatorStore, issuesAtom } from "#/store/generator-store";
 import InlineText from "../InlineText";
 import FieldEditor from "./FieldEditor";
+
+const SECTION_TITLE_KEYS: Record<string, MessageKey> = {
+	service: "section.service",
+	mode: "section.mode",
+	container: "section.container",
+	health: "section.health",
+	storage: "section.storage",
+	resources: "section.resources",
+	restart: "section.restart",
+	placement: "section.placement",
+	network: "section.network",
+	"task-misc": "section.task-misc",
+	"update-config": "section.update-config",
+	"rollback-config": "section.rollback-config",
+	request: "section.request",
+} as const;
 
 interface SectionPanelProps {
 	section: SectionDef;
@@ -29,6 +46,7 @@ function matches(field: FieldDef, needle: string): boolean {
 }
 
 export default function SectionPanel({ section, filter }: SectionPanelProps) {
+	const { t } = useI18n();
 	const needle = filter.trim().toLowerCase();
 	const visibleFields = section.fields.filter((field) =>
 		matches(field, needle),
@@ -74,7 +92,9 @@ export default function SectionPanel({ section, filter }: SectionPanelProps) {
 						<code>{section.path}</code>
 					</span>
 					<Text variant="heading3" as="h2">
-						{section.title}
+						{SECTION_TITLE_KEYS[section.id]
+							? t(SECTION_TITLE_KEYS[section.id])
+							: section.title}
 					</Text>
 					<Text variant="secondary" size="sm" as="span">
 						<InlineText text={section.summary} />
@@ -82,9 +102,13 @@ export default function SectionPanel({ section, filter }: SectionPanelProps) {
 				</span>
 				<span className="section-panel__badges">
 					{activeCount > 0 ? (
-						<Badge variant="neutral">{activeCount} set</Badge>
+						<Badge variant="neutral">
+							{activeCount} {t("section.set")}
+						</Badge>
 					) : null}
-					<Badge variant="outline">{expanded ? "Hide" : "Show"}</Badge>
+					<Badge variant="outline">
+						{expanded ? t("section.hide") : t("section.show")}
+					</Badge>
 				</span>
 			</button>
 

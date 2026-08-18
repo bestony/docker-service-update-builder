@@ -8,6 +8,7 @@ import PresetBar from "#/components/generator/PresetBar";
 import SectionPanel from "#/components/generator/SectionPanel";
 import { ALL_FIELDS, SECTIONS } from "#/docker/catalog";
 import { API_DOC_URL, API_VERSION } from "#/docker/request";
+import { useI18n } from "#/i18n";
 import type { GeneratorSearch } from "#/lib/use-generator-url-sync";
 import { useGeneratorUrlSync } from "#/lib/use-generator-url-sync";
 import type { OutputFormat } from "#/store/generator-store";
@@ -43,39 +44,31 @@ function GeneratorPage() {
 	useGeneratorUrlSync(search);
 
 	const filter = useSelector(generatorStore, (state) => state.filter);
+	const { t } = useI18n();
 
 	return (
 		<main className="page page--wide">
 			<section className="panel panel--hero rise-in home-hero">
-				<p className="kicker">
-					Docker Engine API {API_VERSION} · ServiceUpdate
-				</p>
+				<p className="kicker">{t("home.kicker", { version: API_VERSION })}</p>
 				<Text variant="heading1" as="h1">
-					Build a service update object you can actually explain.
+					{t("home.title")}
 				</Text>
-				<Text variant="secondary">
-					Tick the keys you want to change, in units humans use. Every field
-					carries the reasoning behind it, the CLI flag it maps to, and the
-					Compose key it corresponds to. The result exports as JSON, YAML or a
-					runnable curl script.
-				</Text>
+				<Text variant="secondary">{t("home.intro")}</Text>
 				<Banner
 					className="home-hero__callout"
 					variant="alert"
 					icon={<WarningIcon weight="fill" />}
 				>
 					<p>
-						<strong>Read this first.</strong>{" "}
-						<code>POST /services/&#123;id&#125;/update</code> replaces the whole
-						ServiceSpec — it is not a patch endpoint. Treat the object below as
-						the <em>diff</em> you merge into the spec you read from{" "}
-						<code>GET /services/&#123;id&#125;</code>. The curl tab shows that
-						flow end to end.
+						<strong>{t("home.readFirst")}</strong>{" "}
+						<code>POST /services/&#123;id&#125;/update</code>{" "}
+						{t("home.warning")} <code>GET /services/&#123;id&#125;</code>.{" "}
+						{t("home.warningEnd")}
 					</p>
 				</Banner>
 				<Text size="sm">
 					<a href={API_DOC_URL} target="_blank" rel="noreferrer">
-						Docker Engine API {API_VERSION} — ServiceUpdate reference
+						{t("home.apiReference", { version: API_VERSION })}
 					</a>
 				</Text>
 			</section>
@@ -89,10 +82,13 @@ function GeneratorPage() {
 						    text, so the filter needs no id of its own to stay associated. */}
 						<Input
 							type="search"
-							label="Find a field"
-							description={`${ALL_FIELDS.length} keys across ${SECTIONS.length} sections. Searching matches JSON keys, paths, CLI flags and Compose keys.`}
+							label={t("home.findField")}
+							description={t("home.searchDescription", {
+								fields: ALL_FIELDS.length,
+								sections: SECTIONS.length,
+							})}
 							value={filter}
-							placeholder="MemoryBytes, rollback, --limit-cpu, deploy.resources…"
+							placeholder={t("home.searchPlaceholder")}
 							onChange={(event) =>
 								generatorStore.actions.setFilter(event.target.value)
 							}

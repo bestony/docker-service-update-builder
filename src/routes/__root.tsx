@@ -8,6 +8,7 @@ import {
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
+import { I18nProvider, LANGUAGE_INIT_SCRIPT } from "../i18n";
 import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
 import StoreDevtools from "../lib/demo-store-devtools";
 import appCss from "../styles.css?url";
@@ -52,14 +53,18 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 	return (
 		<html lang="en" suppressHydrationWarning>
 			<head>
+				{/* biome-ignore lint/security/noDangerouslySetInnerHtml: static, build-time constant that must run before paint to set the browser language */}
+				<script dangerouslySetInnerHTML={{ __html: LANGUAGE_INIT_SCRIPT }} />
 				{/* biome-ignore lint/security/noDangerouslySetInnerHtml: static, build-time constant that must run before paint to avoid a theme flash */}
 				<script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
 				<HeadContent />
 			</head>
 			<body>
-				<Header />
-				{children}
-				<Footer />
+				<I18nProvider>
+					<Header />
+					{children}
+					<Footer />
+				</I18nProvider>
 				<TanStackDevtools
 					config={{
 						position: "bottom-right",

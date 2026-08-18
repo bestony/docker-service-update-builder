@@ -5,6 +5,7 @@ import { useSelector } from "@tanstack/react-store";
 import { postsQueryOptions } from "#/content/posts-query";
 import { isFieldActive } from "#/docker/build-spec";
 import { SECTIONS } from "#/docker/catalog";
+import { localizedPostText, useI18n } from "#/i18n";
 import { generatorStore } from "#/store/generator-store";
 
 /**
@@ -13,6 +14,7 @@ import { generatorStore } from "#/store/generator-store";
  * cache entry and one dynamic import.
  */
 export default function FurtherReading() {
+	const { locale, t } = useI18n();
 	const { data: posts, isPending } = useQuery(postsQueryOptions());
 
 	const activeSections = useSelector(generatorStore, (state) => {
@@ -34,11 +36,9 @@ export default function FurtherReading() {
 	return (
 		<div className="panel">
 			<div className="further-reading__header">
-				<p className="kicker">Field guide</p>
+				<p className="kicker">{t("reading.kicker")}</p>
 				<Text variant="heading3" as="h2">
-					{active.size === 0
-						? "Start here"
-						: "Background for what you have configured"}
+					{active.size === 0 ? t("reading.start") : t("reading.background")}
 				</Text>
 			</div>
 
@@ -46,24 +46,28 @@ export default function FurtherReading() {
 				<div className="further-reading__loading">
 					<Loader size="sm" />
 					<Text variant="secondary" size="sm" as="span">
-						Loading…
+						{t("reading.loading")}
 					</Text>
 				</div>
 			) : null}
 
 			<ul className="further-reading__list">
-				{relevant.map((post) => (
-					<li key={post.slug}>
-						<Link
-							to="/blog/$slug"
-							params={{ slug: post.slug }}
-							className="further-reading__card"
-						>
-							<strong className="further-reading__title">{post.title}</strong>
-							<p className="further-reading__summary">{post.summary}</p>
-						</Link>
-					</li>
-				))}
+				{relevant.map((post) => {
+					const text = localizedPostText(post.slug, locale, post);
+
+					return (
+						<li key={post.slug}>
+							<Link
+								to="/blog/$slug"
+								params={{ slug: post.slug }}
+								className="further-reading__card"
+							>
+								<strong className="further-reading__title">{text.title}</strong>
+								<p className="further-reading__summary">{text.summary}</p>
+							</Link>
+						</li>
+					);
+				})}
 			</ul>
 		</div>
 	);

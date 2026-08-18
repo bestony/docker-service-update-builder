@@ -3,6 +3,7 @@ import { DownloadSimpleIcon } from "@phosphor-icons/react";
 import { useSelector } from "@tanstack/react-store";
 import { countActiveFields } from "#/docker/build-spec";
 import { API_DOC_URL, API_VERSION, buildUpdatePath } from "#/docker/request";
+import { useI18n } from "#/i18n";
 import type { OutputFormat } from "#/store/generator-store";
 import {
 	generatorStore,
@@ -12,18 +13,10 @@ import {
 import CopyButton from "./CopyButton";
 import IssueList from "./IssueList";
 
-const FORMATS: Array<{ id: OutputFormat; label: string; hint: string }> = [
-	{ id: "json", label: "JSON", hint: "The request body, ready to POST." },
-	{
-		id: "yaml",
-		label: "YAML",
-		hint: "The same object, easier to review in a PR.",
-	},
-	{
-		id: "curl",
-		label: "curl",
-		hint: "The full read-modify-write flow against the Docker socket.",
-	},
+const FORMATS: Array<{ id: OutputFormat; label: string }> = [
+	{ id: "json", label: "JSON" },
+	{ id: "yaml", label: "YAML" },
+	{ id: "curl", label: "curl" },
 ];
 
 const FORMAT_TABS = FORMATS.map((entry) => ({
@@ -57,36 +50,46 @@ function download(text: string, filename: string) {
 }
 
 export default function OutputPanel() {
+	const { t } = useI18n();
 	const format = useSelector(generatorStore, (state) => state.format);
 	const activeCount = useSelector(generatorStore, (state) =>
 		countActiveFields(state.states),
 	);
 	const output = useSelector(outputAtom);
 	const requestOptions = useSelector(requestOptionsAtom);
+	const formatHint =
+		format === "json"
+			? t("output.jsonHint")
+			: format === "yaml"
+				? t("output.yamlHint")
+				: t("output.curlHint");
 
 	return (
 		<div className="output-panel">
 			<div className="panel">
 				<div className="output-panel__header">
 					<div className="output-panel__title">
-						<p className="kicker">Generated object</p>
+						<p className="kicker">{t("output.generated")}</p>
 						<Text variant="heading3" as="h2">
-							{activeCount} field{activeCount === 1 ? "" : "s"} included
+							{t("output.fieldsIncluded", {
+								count: activeCount,
+								suffix: activeCount === 1 ? "" : "s",
+							})}
 						</Text>
 					</div>
 					<div className="output-panel__actions">
-						<CopyButton getText={() => output.text} label="Copy" />
+						<CopyButton getText={() => output.text} label={t("output.copy")} />
 						<Button
 							variant="secondary"
 							size="sm"
 							icon={DownloadSimpleIcon}
 							onClick={() => download(output.text, downloadFilename(format))}
 						>
-							Download
+							{t("output.download")}
 						</Button>
 						<CopyButton
 							getText={() => window.location.href}
-							label="Copy permalink"
+							label={t("output.copyPermalink")}
 						/>
 					</div>
 				</div>
@@ -101,7 +104,7 @@ export default function OutputPanel() {
 				/>
 
 				<Text variant="secondary" size="xs">
-					{FORMATS.find((entry) => entry.id === format)?.hint}
+					{formatHint}
 				</Text>
 
 				<pre className="output-panel__code">
@@ -110,14 +113,15 @@ export default function OutputPanel() {
 
 				{format !== "curl" ? (
 					<Text variant="secondary" size="xs">
-						Endpoint: <code>POST {buildUpdatePath(requestOptions)}</code>
+						{t("output.endpoint")}{" "}
+						<code>POST {buildUpdatePath(requestOptions)}</code>
 					</Text>
 				) : null}
 
 				<Text variant="secondary" size="xs">
 					Engine API {API_VERSION} —{" "}
 					<Link href={API_DOC_URL} target="_blank" rel="noreferrer">
-						ServiceUpdate reference
+						{t("output.apiReference")}
 					</Link>
 				</Text>
 			</div>

@@ -4,6 +4,7 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import PostBody from "#/components/blog/PostBody";
 import { postQueryOptions } from "#/content/posts-query";
 import { SECTIONS } from "#/docker/catalog";
+import { localizedPostText, useI18n } from "#/i18n";
 
 export const Route = createFileRoute("/blog/$slug")({
 	loader: async ({ context, params }) => {
@@ -24,29 +25,37 @@ export const Route = createFileRoute("/blog/$slug")({
 			: [],
 	}),
 	component: BlogPost,
-	notFoundComponent: () => (
+	notFoundComponent: BlogNotFound,
+});
+
+function BlogNotFound() {
+	const { t } = useI18n();
+
+	return (
 		<main className="page page--center">
 			<div className="panel blog-not-found">
 				<Text variant="heading2" as="h1">
-					No such post
+					{t("blog.noPost")}
 				</Text>
 				<Text variant="secondary" size="sm">
-					That slug is not part of the field guide.
+					{t("blog.noPostText")}
 				</Text>
 				<Link to="/blog" className="blog-chip">
-					Back to the field guide
+					{t("blog.backToGuide")}
 				</Link>
 			</div>
 		</main>
-	),
-});
+	);
+}
 
 function BlogPost() {
+	const { locale, t } = useI18n();
 	const { slug } = Route.useParams();
 	const { data: post } = useSuspenseQuery(postQueryOptions(slug));
 
 	if (!post) return null;
 
+	const text = localizedPostText(post.slug, locale, post);
 	const relatedSections = SECTIONS.filter((section) =>
 		post.sections.includes(section.id),
 	);
@@ -61,23 +70,23 @@ function BlogPost() {
 						</Badge>
 					))}
 					<span className="blog-post__byline">
-						{post.date} · {post.readingMinutes} min read
+						{post.date} · {t("blog.reading", { minutes: post.readingMinutes })}
 					</span>
 				</div>
 
 				<Text variant="heading1" as="h1">
-					{post.title}
+					{text.title}
 				</Text>
-				<Text variant="secondary">{post.summary}</Text>
+				<Text variant="secondary">{text.summary}</Text>
 
 				<PostBody blocks={post.blocks} />
 			</article>
 
 			{relatedSections.length > 0 ? (
 				<section className="panel">
-					<p className="kicker">Configure it</p>
+					<p className="kicker">{t("blog.configure")}</p>
 					<Text variant="secondary" size="sm">
-						Sections of the builder that cover what this post describes:
+						{t("blog.configureText")}
 					</Text>
 					{/* These stay router links rather than Kumo Buttons: they navigate, so
 					    they must remain real anchors for middle-click and copy-link. */}
@@ -94,7 +103,7 @@ function BlogPost() {
 			) : null}
 
 			<Link to="/blog" className="blog-post__back">
-				← All posts
+				{t("blog.allPosts")}
 			</Link>
 		</main>
 	);

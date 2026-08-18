@@ -1,23 +1,34 @@
 import { Button, Text } from "@cloudflare/kumo";
 import { useSelector } from "@tanstack/react-store";
 import { PRESETS } from "#/docker/presets";
+import { type MessageKey, useI18n } from "#/i18n";
 import { generatorStore, presetById } from "#/store/generator-store";
 import InlineText from "../InlineText";
+
+const PRESET_TITLE_KEYS: Record<string, MessageKey> = {
+	"memory-limit": "preset.memory-limit",
+	"zero-downtime": "preset.zero-downtime",
+	scale: "preset.scale",
+	"force-redeploy": "preset.force-redeploy",
+	hardened: "preset.hardened",
+	"manual-rollback": "preset.manual-rollback",
+} as const;
 
 /**
  * Presets are the fastest way to understand the shape of a real update body:
  * each one is a complete, defensible configuration rather than a single key.
  */
 export default function PresetBar() {
+	const { t } = useI18n();
 	const presetId = useSelector(generatorStore, (state) => state.presetId);
 	const active = presetId ? presetById.get(presetId) : undefined;
 
 	return (
 		<div className="panel">
 			<div className="preset-bar__intro">
-				<p className="kicker">Start from a preset</p>
+				<p className="kicker">{t("preset.kicker")}</p>
 				<Text variant="heading3" as="h2">
-					Common update shapes
+					{t("preset.title")}
 				</Text>
 			</div>
 
@@ -30,7 +41,9 @@ export default function PresetBar() {
 						title={preset.summary}
 						onClick={() => generatorStore.actions.applyPreset(preset)}
 					>
-						{preset.title}
+						{PRESET_TITLE_KEYS[preset.id]
+							? t(PRESET_TITLE_KEYS[preset.id])
+							: preset.title}
 					</Button>
 				))}
 				<Button
@@ -38,7 +51,7 @@ export default function PresetBar() {
 					size="sm"
 					onClick={() => generatorStore.actions.reset()}
 				>
-					Clear all
+					{t("preset.clear")}
 				</Button>
 			</div>
 
@@ -53,8 +66,7 @@ export default function PresetBar() {
 				</div>
 			) : (
 				<Text variant="secondary" size="sm">
-					Or tick any field below. Only the fields you enable end up in the
-					generated object.
+					{t("preset.orTick")}
 				</Text>
 			)}
 		</div>

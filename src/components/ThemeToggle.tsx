@@ -1,6 +1,7 @@
 import { Button } from "@cloudflare/kumo";
 import { CircleHalfIcon, MoonIcon, SunIcon } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
+import { useI18n } from "../i18n";
 
 type ThemeMode = "light" | "dark" | "auto";
 
@@ -15,12 +16,6 @@ const ICON = {
 	dark: MoonIcon,
 	auto: CircleHalfIcon,
 } as const;
-
-const LABEL: Record<ThemeMode, string> = {
-	light: "Light",
-	dark: "Dark",
-	auto: "Auto",
-};
 
 function getInitialMode(): ThemeMode {
 	if (typeof window === "undefined") {
@@ -50,6 +45,7 @@ function applyThemeMode(mode: ThemeMode) {
 }
 
 export default function ThemeToggle() {
+	const { t } = useI18n();
 	const [mode, setMode] = useState<ThemeMode>("auto");
 
 	useEffect(() => {
@@ -79,10 +75,25 @@ export default function ThemeToggle() {
 		window.localStorage.setItem("theme", nextMode);
 	}
 
+	const currentLabel =
+		mode === "light"
+			? t("theme.light")
+			: mode === "dark"
+				? t("theme.dark")
+				: t("theme.auto");
+	const nextLabel =
+		NEXT_MODE[mode] === "light"
+			? t("theme.light")
+			: NEXT_MODE[mode] === "dark"
+				? t("theme.dark")
+				: t("theme.auto");
 	const label =
 		mode === "auto"
-			? "Theme: auto (follows the system). Click to switch to light."
-			: `Theme: ${mode}. Click to switch to ${NEXT_MODE[mode]}.`;
+			? t("theme.autoDescription")
+			: t("theme.modeDescription", {
+					mode: currentLabel,
+					next: nextLabel,
+				});
 
 	return (
 		<Button
@@ -93,7 +104,7 @@ export default function ThemeToggle() {
 			aria-label={label}
 			title={label}
 		>
-			<span className="theme-toggle__label">{LABEL[mode]}</span>
+			<span className="theme-toggle__label">{currentLabel}</span>
 		</Button>
 	);
 }

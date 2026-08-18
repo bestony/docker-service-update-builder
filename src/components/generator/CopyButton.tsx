@@ -1,6 +1,7 @@
 import { Button } from "@cloudflare/kumo";
 import { CheckIcon, CopyIcon, WarningIcon } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
+import { useI18n } from "#/i18n";
 
 interface CopyButtonProps {
 	/** Resolved lazily so the caller can hand over `window.location.href`. */
@@ -22,6 +23,7 @@ const ICON = {
  * on the server and on first hydration.
  */
 export default function CopyButton({ getText, label }: CopyButtonProps) {
+	const { t } = useI18n();
 	const [status, setStatus] = useState<Status>("idle");
 
 	useEffect(() => {
@@ -43,9 +45,9 @@ export default function CopyButton({ getText, label }: CopyButtonProps) {
 	return (
 		<Button variant="secondary" size="sm" icon={ICON[status]} onClick={copy}>
 			{status === "copied"
-				? "Copied"
+				? t("copy.copied")
 				: status === "failed"
-					? "Copy blocked"
+					? t("copy.blocked")
 					: label}
 		</Button>
 	);

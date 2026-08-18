@@ -12,6 +12,7 @@ import { useState } from "react";
 import { describeDerivedValue } from "#/docker/build-spec";
 import type { FieldDef } from "#/docker/field-types";
 import { BYTE_UNITS, DURATION_UNITS, type UnitOption } from "#/docker/units";
+import { useI18n } from "#/i18n";
 import { generatorStore } from "#/store/generator-store";
 import InlineText from "../InlineText";
 import RowsEditor from "./RowsEditor";
@@ -32,9 +33,8 @@ function isMultiline(field: FieldDef): boolean {
 	return field.type === "lines" || field.type === "mapLines";
 }
 
-const UNSET_LABEL = "— unset —";
-
 export default function FieldEditor({ field, flagged }: FieldEditorProps) {
+	const { t } = useI18n();
 	const [showDetails, setShowDetails] = useState(false);
 	const state = useSelector(generatorStore, (store) => store.states[field.id]);
 
@@ -109,10 +109,10 @@ export default function FieldEditor({ field, flagged }: FieldEditorProps) {
 								onValueChange={(value) =>
 									actions.setValue(field.id, value ?? "")
 								}
-								placeholder={UNSET_LABEL}
+								placeholder={t("field.unset")}
 								renderValue={renderOptionLabel}
 							>
-								<Select.Option value="">{UNSET_LABEL}</Select.Option>
+								<Select.Option value="">{t("field.unset")}</Select.Option>
 								{field.options?.map((option) => (
 									<Select.Option key={option.value} value={option.value}>
 										{option.label}
@@ -155,7 +155,7 @@ export default function FieldEditor({ field, flagged }: FieldEditorProps) {
 								}
 							/>
 							<Select
-								aria-label="Unit"
+								aria-label={t("field.unit")}
 								value={state.unit ?? units[0].id}
 								onValueChange={(value) =>
 									actions.setUnit(field.id, value ?? units[0].id)
@@ -191,11 +191,11 @@ export default function FieldEditor({ field, flagged }: FieldEditorProps) {
 
 					{derived ? (
 						<Text variant="secondary" size="xs">
-							Serialises to <code>{derived}</code>
+							{t("field.serializes")} <code>{derived}</code>
 						</Text>
 					) : (
 						<Text variant="secondary" size="xs">
-							Empty — the key is omitted from the generated object.
+							{t("field.empty")}
 						</Text>
 					)}
 				</div>
@@ -216,7 +216,7 @@ export default function FieldEditor({ field, flagged }: FieldEditorProps) {
 				aria-expanded={showDetails}
 				onClick={() => setShowDetails((previous) => !previous)}
 			>
-				{showDetails ? "Hide explanation" : "What does this do?"}
+				{showDetails ? t("field.hideExplanation") : t("field.whatDoesThisDo")}
 			</Button>
 
 			{showDetails ? (
@@ -229,7 +229,7 @@ export default function FieldEditor({ field, flagged }: FieldEditorProps) {
 					<dl className="field-editor__meta">
 						{field.apiDefault ? (
 							<div className="field-editor__meta-row">
-								<dt>API default</dt>
+								<dt>{t("field.apiDefault")}</dt>
 								<dd>
 									<code>{field.apiDefault}</code>
 								</dd>
@@ -237,7 +237,7 @@ export default function FieldEditor({ field, flagged }: FieldEditorProps) {
 						) : null}
 						{field.cli ? (
 							<div className="field-editor__meta-row">
-								<dt>CLI</dt>
+								<dt>{t("field.cli")}</dt>
 								<dd>
 									<code>{field.cli}</code>
 								</dd>
@@ -245,7 +245,7 @@ export default function FieldEditor({ field, flagged }: FieldEditorProps) {
 						) : null}
 						{field.compose ? (
 							<div className="field-editor__meta-row">
-								<dt>Compose</dt>
+								<dt>{t("field.compose")}</dt>
 								<dd>
 									<code>{field.compose}</code>
 								</dd>

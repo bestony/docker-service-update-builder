@@ -3,6 +3,7 @@ import { PlusIcon, TrashIcon } from "@phosphor-icons/react";
 import { useSelector } from "@tanstack/react-store";
 import { useId } from "react";
 import type { FieldDef, RowColumn } from "#/docker/field-types";
+import { useI18n } from "#/i18n";
 import { generatorStore } from "#/store/generator-store";
 import InlineText from "../InlineText";
 
@@ -53,6 +54,7 @@ function Cell({
 	value: string;
 	onChange: (next: string) => void;
 }) {
+	const { t } = useI18n();
 	if (column.type === "boolean") {
 		return (
 			<span className="rows-editor__toggle">
@@ -85,10 +87,10 @@ function Cell({
 				aria-label={column.label}
 				value={value}
 				onValueChange={(next) => onChange(next ?? "")}
-				placeholder="— unset —"
+				placeholder={t("field.unset")}
 				renderValue={renderValue}
 			>
-				<Select.Option value="">— unset —</Select.Option>
+				<Select.Option value="">{t("field.unset")}</Select.Option>
 				{column.options?.map((option) => (
 					<Select.Option key={option.value} value={option.value}>
 						{option.label}
@@ -116,6 +118,7 @@ function Cell({
  * is least guessable.
  */
 export default function RowsEditor({ field }: RowsEditorProps) {
+	const { t } = useI18n();
 	const scope = useId();
 	const rows = useSelector(
 		generatorStore,
@@ -127,7 +130,7 @@ export default function RowsEditor({ field }: RowsEditorProps) {
 		<div className="rows-editor">
 			{rows.length === 0 ? (
 				<Text variant="secondary" size="sm">
-					No entries yet — the key is omitted from the output.
+					{t("rows.noEntries")}
 				</Text>
 			) : null}
 
@@ -145,7 +148,7 @@ export default function RowsEditor({ field }: RowsEditorProps) {
 							icon={TrashIcon}
 							onClick={() => generatorStore.actions.removeRow(field.id, index)}
 						>
-							Remove
+							{t("rows.remove")}
 						</Button>
 					</div>
 
@@ -189,7 +192,7 @@ export default function RowsEditor({ field }: RowsEditorProps) {
 					icon={PlusIcon}
 					onClick={() => generatorStore.actions.addRow(field.id)}
 				>
-					Add entry
+					{t("rows.addEntry")}
 				</Button>
 			</div>
 		</div>
