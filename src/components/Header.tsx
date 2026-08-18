@@ -56,20 +56,6 @@ export default function Header() {
 					>
 						{t("nav.apiDocs")}
 					</a>
-					{/* Stays a native <details> so the menu still opens before hydration. */}
-					<details className="site-nav__menu">
-						<summary className="site-nav__link site-nav__menu-summary">
-							{t("nav.demos")}
-						</summary>
-						<div className="site-nav__menu-panel">
-							<a href="/demo/tanstack-query" className="site-nav__menu-item">
-								{t("nav.queryDemo")}
-							</a>
-							<a href="/demo/store" className="site-nav__menu-item">
-								{t("nav.storeDemo")}
-							</a>
-						</div>
-					</details>
 				</div>
 
 				<div className="site-header__actions">

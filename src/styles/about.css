@@ -2,9 +2,8 @@
  * About route.
  *
  * The page is pure prose, so `.panel` and Kumo's `Text` already carry most of
- * it. What is left is the three things neither can express: a readable measure
- * for the hero lede, rhythm between bullet points, and the term/definition
- * typography of the stack list.
+ * it. What is left is the two things neither can express: a readable measure
+ * for the hero lede and rhythm between bullet points.
  *
  * The lede is measured from the block rather than by composing the shared
  * `.measure` class, because Kumo's `Text` deliberately accepts no `className`.
@@ -27,31 +26,4 @@
 
 .about__list > li + li {
 	margin-block-start: var(--app-space-2);
-}
-
-.about__stack {
-	display: flex;
-	flex-direction: column;
-	gap: var(--app-space-3);
-	margin: 0;
-}
-
-.about__stack-row {
-	display: flex;
-	flex-direction: column;
-	gap: var(--app-space-1);
-}
-
-.about__stack dt {
-	color: var(--text-color-kumo-strong);
-	font-size: var(--text-sm);
-	line-height: var(--text-sm--line-height);
-	font-weight: 700;
-}
-
-.about__stack dd {
-	margin: 0;
-	color: var(--text-color-kumo-subtle);
-	font-size: var(--text-sm);
-	line-height: var(--text-sm--line-height);
 }

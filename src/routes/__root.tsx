@@ -10,7 +10,6 @@ import Footer from "../components/Footer";
 import Header from "../components/Header";
 import { I18nProvider, LANGUAGE_INIT_SCRIPT } from "../i18n";
 import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
-import StoreDevtools from "../lib/demo-store-devtools";
 import appCss from "../styles.css?url";
 
 interface MyRouterContext {
@@ -75,7 +74,6 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 							render: <TanStackRouterDevtoolsPanel />,
 						},
 						TanStackQueryDevtools,
-						StoreDevtools,
 					]}
 				/>
 				<Scripts />

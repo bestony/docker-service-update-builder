@@ -12,31 +12,6 @@ export const Route = createFileRoute("/about")({
 	}),
 });
 
-const STACK: Array<[string, string]> = [
-	[
-		"TanStack Start",
-		"The framework. SSR and routing only — this app ships no server functions, so the build is deployable as a static SPA.",
-	],
-	[
-		"TanStack Router",
-		"File-based routes plus JSON-first search params. The whole builder state round-trips through ?c= as a base64url permalink.",
-	],
-	[
-		"TanStack Store",
-		"Holds the field states. Named actions keep the reducer logic out of components; createAtom derives the spec, the YAML and the review findings.",
-	],
-	[
-		"TanStack Query",
-		"Loads the field guide through a dynamic import. The route loader primes the cache, the builder page reads the same entry.",
-	],
-	[
-		"TanStack Intent",
-		"Ships the library skills that agents load before touching router or Start code. See AGENTS.md.",
-	],
-	["TanStack CLI", "Scaffolded the project and installed the add-ons."],
-	["Biome", "Formatter and linter. One toolchain, no ESLint or Prettier."],
-];
-
 function About() {
 	const { t } = useI18n();
 
@@ -67,20 +42,6 @@ function About() {
 					<li>{t("about.how4")}</li>
 					<li>{t("about.how5", { count: PRESETS.length })}</li>
 				</ul>
-			</section>
-
-			<section className="panel">
-				<Text variant="heading3" as="h2">
-					{t("about.stack")}
-				</Text>
-				<dl className="about__stack">
-					{STACK.map(([name, description]) => (
-						<div className="about__stack-row" key={name}>
-							<dt>{name}</dt>
-							<dd>{description}</dd>
-						</div>
-					))}
-				</dl>
 			</section>
 
 			<section className="panel">

@@ -18,9 +18,6 @@ const EN = {
 	"nav.fieldGuide": "Field guide",
 	"nav.about": "About",
 	"nav.apiDocs": "API docs",
-	"nav.demos": "Demos",
-	"nav.queryDemo": "TanStack Query",
-	"nav.storeDemo": "Store",
 	"nav.followX": "Follow on X",
 	"nav.github": "Open project GitHub",
 	"language.switch": "Switch language",
@@ -101,7 +98,6 @@ const EN = {
 		"A cross-field review flags the combinations the daemon rejects — dnsrr with published ports, start-first with host-mode ports, reservations above limits, and more.",
 	"about.how5":
 		"{count} presets encode complete, defensible configurations rather than single keys.",
-	"about.stack": "Stack",
 	"about.scope": "Scope and honesty",
 	"about.scopeText":
 		"This app never talks to a Docker daemon. It has no backend, holds no credentials, and cannot apply anything — it produces text you review and run yourself. That is deliberate: the dangerous part of a service update is the merge, and a tool that hides the merge would be worse than no tool.",
@@ -153,9 +149,6 @@ const ZH: Record<MessageKey, string> = {
 	"nav.fieldGuide": "字段指南",
 	"nav.about": "关于",
 	"nav.apiDocs": "API 文档",
-	"nav.demos": "示例",
-	"nav.queryDemo": "TanStack Query",
-	"nav.storeDemo": "Store",
 	"nav.followX": "前往 X 主页",
 	"nav.github": "打开项目 GitHub",
 	"language.switch": "切换语言",
@@ -233,7 +226,6 @@ const ZH: Record<MessageKey, string> = {
 	"about.how4":
 		"跨字段检查会标出 daemon 会拒绝的组合，例如 dnsrr 与发布端口、start-first 与 host 模式端口、预留资源超过限制等。",
 	"about.how5": "{count} 个预设代表完整且可解释的配置，而不是孤立字段。",
-	"about.stack": "技术栈",
 	"about.scope": "范围与边界",
 	"about.scopeText":
 		"本应用不会连接 Docker daemon。它没有后端、不保存凭据，也不能替你执行任何操作，只会生成供你审阅和运行的文本。这是有意为之：服务更新最危险的部分是合并，而隐藏合并过程的工具还不如没有。",
