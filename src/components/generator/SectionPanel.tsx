@@ -2,8 +2,9 @@ import { Badge, Text } from "@cloudflare/kumo";
 import { useSelector } from "@tanstack/react-store";
 import { useState } from "react";
 import { isFieldActive } from "#/docker/build-spec";
+import { fieldSearchText, localizeSectionCopy } from "#/docker/catalog-copy";
 import type { FieldDef, SectionDef } from "#/docker/field-types";
-import { type MessageKey, useI18n } from "#/i18n";
+import { type Locale, type MessageKey, useI18n } from "#/i18n";
 import { generatorStore, issuesAtom } from "#/store/generator-store";
 import InlineText from "../InlineText";
 import FieldEditor from "./FieldEditor";
@@ -29,27 +30,17 @@ interface SectionPanelProps {
 	filter: string;
 }
 
-function matches(field: FieldDef, needle: string): boolean {
+function matches(field: FieldDef, needle: string, locale: Locale): boolean {
 	if (needle === "") return true;
-	const haystack = [
-		field.id,
-		field.key,
-		field.path,
-		field.title,
-		field.summary,
-		field.cli ?? "",
-		field.compose ?? "",
-	]
-		.join(" ")
-		.toLowerCase();
-	return haystack.includes(needle);
+	return fieldSearchText(locale, field).includes(needle);
 }
 
 export default function SectionPanel({ section, filter }: SectionPanelProps) {
-	const { t } = useI18n();
+	const { locale, t } = useI18n();
+	const copy = localizeSectionCopy(locale, section);
 	const needle = filter.trim().toLowerCase();
 	const visibleFields = section.fields.filter((field) =>
-		matches(field, needle),
+		matches(field, needle, locale),
 	);
 	const activeCount = useSelector(
 		generatorStore,
@@ -97,7 +88,7 @@ export default function SectionPanel({ section, filter }: SectionPanelProps) {
 							: section.title}
 					</Text>
 					<Text variant="secondary" size="sm" as="span">
-						<InlineText text={section.summary} />
+						<InlineText text={copy.summary ?? section.summary} />
 					</Text>
 				</span>
 				<span className="section-panel__badges">
@@ -114,7 +105,7 @@ export default function SectionPanel({ section, filter }: SectionPanelProps) {
 
 			{expanded ? (
 				<>
-					{section.details?.map((paragraph) => (
+					{(copy.details ?? section.details)?.map((paragraph) => (
 						<Text key={paragraph.slice(0, 32)} variant="secondary" size="sm">
 							<InlineText text={paragraph} />
 						</Text>

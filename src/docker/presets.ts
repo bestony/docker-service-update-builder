@@ -137,3 +137,14 @@ export function applyPreset(base: FieldStates, preset: Preset): FieldStates {
 
 	return next;
 }
+
+export function applyPresets(
+	base: FieldStates,
+	presets: Array<Preset>,
+): FieldStates {
+	let next = base;
+	for (const preset of presets) {
+		next = applyPreset(next, preset);
+	}
+	return next;
+}

@@ -1,6 +1,7 @@
 import { LinkButton } from "@cloudflare/kumo";
 import { GithubLogoIcon, XLogoIcon } from "@phosphor-icons/react";
 import { Link } from "@tanstack/react-router";
+import { AUTHOR_X_URL, PROJECT_GITHUB_URL } from "#/site-links";
 import { useI18n } from "../i18n";
 import LanguageToggle from "./LanguageToggle";
 import ThemeToggle from "./ThemeToggle";
@@ -73,7 +74,7 @@ export default function Header() {
 
 				<div className="site-header__actions">
 					<LinkButton
-						href="https://x.com/tan_stack"
+						href={AUTHOR_X_URL}
 						external
 						shape="square"
 						size="sm"
@@ -83,7 +84,7 @@ export default function Header() {
 						aria-label={t("nav.followX")}
 					/>
 					<LinkButton
-						href="https://github.com/TanStack"
+						href={PROJECT_GITHUB_URL}
 						external
 						shape="square"
 						size="sm"

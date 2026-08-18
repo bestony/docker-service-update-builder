@@ -1,5 +1,6 @@
 import { Text } from "@cloudflare/kumo";
 import { GithubLogoIcon, XLogoIcon } from "@phosphor-icons/react";
+import { AUTHOR_X_URL, PROJECT_GITHUB_URL } from "#/site-links";
 import { useI18n } from "../i18n";
 
 export default function Footer() {
@@ -17,7 +18,7 @@ export default function Footer() {
 				</div>
 				<div className="footer__links">
 					<a
-						href="https://x.com/tan_stack"
+						href={AUTHOR_X_URL}
 						target="_blank"
 						rel="noreferrer"
 						className="footer__link"
@@ -26,7 +27,7 @@ export default function Footer() {
 						<XLogoIcon size={24} aria-hidden="true" />
 					</a>
 					<a
-						href="https://github.com/TanStack"
+						href={PROJECT_GITHUB_URL}
 						target="_blank"
 						rel="noreferrer"
 						className="footer__link"

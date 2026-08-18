@@ -35,6 +35,12 @@
 	padding: var(--app-space-3) var(--app-space-4);
 }
 
+.preset-bar__details {
+	display: flex;
+	flex-direction: column;
+	gap: var(--app-space-2);
+}
+
 /*
  * Pre-emptive: no preset rationale uses inline code today, but the rest of the
  * catalog prose does, and `InlineText` would render it here the moment one

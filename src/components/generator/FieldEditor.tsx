@@ -10,6 +10,7 @@ import {
 import { useSelector } from "@tanstack/react-store";
 import { useState } from "react";
 import { describeDerivedValue } from "#/docker/build-spec";
+import { localizeFieldCopy } from "#/docker/catalog-copy";
 import type { FieldDef } from "#/docker/field-types";
 import { BYTE_UNITS, DURATION_UNITS, type UnitOption } from "#/docker/units";
 import { useI18n } from "#/i18n";
@@ -34,9 +35,10 @@ function isMultiline(field: FieldDef): boolean {
 }
 
 export default function FieldEditor({ field, flagged }: FieldEditorProps) {
-	const { t } = useI18n();
+	const { locale, t } = useI18n();
 	const [showDetails, setShowDetails] = useState(false);
 	const state = useSelector(generatorStore, (store) => store.states[field.id]);
+	const copy = localizeFieldCopy(locale, field);
 
 	if (!state) return null;
 
@@ -74,13 +76,13 @@ export default function FieldEditor({ field, flagged }: FieldEditorProps) {
 					onCheckedChange={(checked) => actions.toggleField(field.id, checked)}
 					label={
 						<span className="field-editor__title">
-							{field.title}
+							{copy.title ?? field.title}
 							<code>{field.key}</code>
 						</span>
 					}
 				/>
 				<p className="field-editor__summary">
-					<InlineText text={field.summary} />
+					<InlineText text={copy.summary ?? field.summary} />
 				</p>
 				<p className="field-editor__path">
 					<code>{field.path}</code>
@@ -104,7 +106,7 @@ export default function FieldEditor({ field, flagged }: FieldEditorProps) {
 					{field.type === "select" ? (
 						<div className="field-editor__choice">
 							<Select
-								aria-label={field.title}
+								aria-label={copy.title ?? field.title}
 								value={state.value}
 								onValueChange={(value) =>
 									actions.setValue(field.id, value ?? "")
@@ -132,7 +134,7 @@ export default function FieldEditor({ field, flagged }: FieldEditorProps) {
 					{isMultiline(field) ? (
 						<InputArea
 							className="field-editor__lines"
-							aria-label={field.title}
+							aria-label={copy.title ?? field.title}
 							value={state.value}
 							placeholder={field.placeholder}
 							spellCheck={false}
@@ -147,7 +149,7 @@ export default function FieldEditor({ field, flagged }: FieldEditorProps) {
 							<Input
 								className="field-editor__amount"
 								type="number"
-								aria-label={field.title}
+								aria-label={copy.title ?? field.title}
 								value={state.value}
 								placeholder={field.placeholder}
 								onChange={(event) =>
@@ -180,7 +182,7 @@ export default function FieldEditor({ field, flagged }: FieldEditorProps) {
 							className="field-editor__input"
 							type={field.type === "text" ? "text" : "number"}
 							step={field.type === "cpu" ? "0.1" : undefined}
-							aria-label={field.title}
+							aria-label={copy.title ?? field.title}
 							value={state.value}
 							placeholder={field.placeholder}
 							onChange={(event) =>
@@ -205,7 +207,7 @@ export default function FieldEditor({ field, flagged }: FieldEditorProps) {
 				<Banner
 					variant="alert"
 					size="sm"
-					description={<InlineText text={field.caution} />}
+					description={<InlineText text={copy.caution ?? field.caution} />}
 				/>
 			) : null}
 
@@ -221,7 +223,7 @@ export default function FieldEditor({ field, flagged }: FieldEditorProps) {
 
 			{showDetails ? (
 				<div className="field-editor__details">
-					{field.details.map((paragraph) => (
+					{(copy.details ?? field.details).map((paragraph) => (
 						<Text key={paragraph.slice(0, 32)} variant="secondary" size="sm">
 							<InlineText text={paragraph} />
 						</Text>

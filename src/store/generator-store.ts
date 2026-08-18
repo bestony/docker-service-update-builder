@@ -3,7 +3,7 @@ import type { FieldStates } from "#/docker/build-spec";
 import { buildRequestOptions, buildServiceSpec } from "#/docker/build-spec";
 import { getField } from "#/docker/catalog";
 import type { Preset } from "#/docker/presets";
-import { applyPreset, createInitialStates, PRESETS } from "#/docker/presets";
+import { applyPresets, createInitialStates, PRESETS } from "#/docker/presets";
 import { buildCurlScript } from "#/docker/request";
 import { validate } from "#/docker/validate";
 import { toYaml } from "#/docker/yaml";
@@ -15,8 +15,8 @@ export interface GeneratorState {
 	format: OutputFormat;
 	/** Free-text filter applied to the field catalog. */
 	filter: string;
-	/** Id of the preset last applied, purely for highlighting the button. */
-	presetId: string | null;
+	/** Pinned preset ids, purely for highlighting the buttons. */
+	presetIds: Array<string>;
 }
 
 function initialState(): GeneratorState {
@@ -24,7 +24,7 @@ function initialState(): GeneratorState {
 		states: createInitialStates(),
 		format: "json",
 		filter: "",
-		presetId: null,
+		presetIds: [],
 	};
 }
 
@@ -38,9 +38,24 @@ function patchField(
 
 	return {
 		...state,
-		presetId: null,
+		presetIds: [],
 		states: { ...state.states, [fieldId]: { ...current, ...patch } },
 	};
+}
+
+function togglePresetIds(
+	current: Array<string>,
+	presetId: string,
+): Array<string> {
+	const selected = new Set(current);
+	if (selected.has(presetId)) {
+		selected.delete(presetId);
+	} else {
+		selected.add(presetId);
+	}
+	return PRESETS.filter((entry) => selected.has(entry.id)).map(
+		(entry) => entry.id,
+	);
 }
 
 /**
@@ -74,7 +89,7 @@ export const generatorStore = new Store(initialState(), ({ setState }) => ({
 
 			return {
 				...state,
-				presetId: null,
+				presetIds: [],
 				states: {
 					...state.states,
 					[fieldId]: { ...current, enabled, value, rows },
@@ -131,21 +146,18 @@ export const generatorStore = new Store(initialState(), ({ setState }) => ({
 		setState((state) => ({ ...state, filter }));
 	},
 
-	applyPreset(preset: Preset) {
-		setState((state) => ({
-			...state,
-			presetId: preset.id,
-			states: applyPreset(createInitialStates(), preset),
-		}));
-	},
-
-	/** Adds a preset on top of whatever is already configured. */
-	mergePreset(preset: Preset) {
-		setState((state) => ({
-			...state,
-			presetId: null,
-			states: applyPreset(state.states, preset),
-		}));
+	togglePreset(preset: Preset) {
+		setState((state) => {
+			const presetIds = togglePresetIds(state.presetIds, preset.id);
+			return {
+				...state,
+				presetIds,
+				states: applyPresets(
+					createInitialStates(),
+					PRESETS.filter((entry) => presetIds.includes(entry.id)),
+				),
+			};
+		});
 	},
 
 	reset() {
@@ -154,7 +166,7 @@ export const generatorStore = new Store(initialState(), ({ setState }) => ({
 
 	/** Replaces the whole field map, used when opening a permalink. */
 	hydrate(states: FieldStates) {
-		setState((state) => ({ ...state, presetId: null, states }));
+		setState((state) => ({ ...state, presetIds: [], states }));
 	},
 }));
 
