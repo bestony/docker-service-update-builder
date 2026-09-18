@@ -41,6 +41,9 @@ export function useGeneratorUrlSync(search: GeneratorSearch): void {
 
 				navigate({
 					replace: true,
+					// The URL is a bookmark, not a navigation: without this every write-back
+					// (a checkbox, a keystroke in a field) scrolls the reader back to the top.
+					resetScroll: false,
 					search: (previous) => ({
 						...previous,
 						c: encoded === "" ? undefined : encoded,
