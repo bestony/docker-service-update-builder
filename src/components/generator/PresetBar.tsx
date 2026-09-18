@@ -1,26 +1,25 @@
 import { Button, Text } from "@cloudflare/kumo";
 import { useSelector } from "@tanstack/react-store";
-import { localizePresetCopy } from "#/docker/catalog-copy";
 import { PRESETS } from "#/docker/presets";
-import { type MessageKey, useI18n } from "#/i18n";
+import { useLocale, useT } from "#/i18n/locale-context";
+import { presetCopy } from "#/i18n/presets";
 import { generatorStore } from "#/store/generator-store";
 import InlineText from "../InlineText";
-
-const PRESET_TITLE_KEYS: Record<string, MessageKey> = {
-	"memory-limit": "preset.memory-limit",
-	"zero-downtime": "preset.zero-downtime",
-	scale: "preset.scale",
-	"force-redeploy": "preset.force-redeploy",
-	hardened: "preset.hardened",
-	"manual-rollback": "preset.manual-rollback",
-} as const;
 
 /**
  * Presets are the fastest way to understand the shape of a real update body:
  * each one is a complete, defensible configuration rather than a single key.
+ *
+ * The preset data carries only an id and its field values; the prose lives in
+ * the message dictionary and is reached through `presetCopy(id, locale)`, so the
+ * ids — the only part that reaches the store — never move between languages.
+ *
+ * Presets toggle: several can be on at once, and the panel below lists every
+ * active one so their rationales can be read together.
  */
 export default function PresetBar() {
-	const { locale, t } = useI18n();
+	const t = useT();
+	const { locale } = useLocale();
 	const presetIds = useSelector(generatorStore, (state) => state.presetIds);
 	const activePresets = PRESETS.filter((preset) =>
 		presetIds.includes(preset.id),
@@ -29,16 +28,16 @@ export default function PresetBar() {
 	return (
 		<div className="panel">
 			<div className="preset-bar__intro">
-				<p className="kicker">{t("preset.kicker")}</p>
+				<p className="kicker">{t("presets.kicker")}</p>
 				<Text variant="heading3" as="h2">
-					{t("preset.title")}
+					{t("presets.heading")}
 				</Text>
 			</div>
 
 			<div className="preset-bar__options">
 				{PRESETS.map((preset) => {
 					const active = presetIds.includes(preset.id);
-					const copy = localizePresetCopy(locale, preset);
+					const copy = presetCopy(preset.id, locale);
 
 					return (
 						<Button
@@ -46,12 +45,10 @@ export default function PresetBar() {
 							size="sm"
 							variant={active ? "primary" : "secondary"}
 							aria-pressed={active}
-							title={copy.summary ?? preset.summary}
+							title={copy?.summary}
 							onClick={() => generatorStore.actions.togglePreset(preset)}
 						>
-							{PRESET_TITLE_KEYS[preset.id]
-								? t(PRESET_TITLE_KEYS[preset.id])
-								: preset.title}
+							{copy?.title ?? preset.id}
 						</Button>
 					);
 				})}
@@ -60,27 +57,25 @@ export default function PresetBar() {
 					size="sm"
 					onClick={() => generatorStore.actions.reset()}
 				>
-					{t("preset.clear")}
+					{t("presets.clearAll")}
 				</Button>
 			</div>
 
 			{activePresets.length > 0 ? (
 				<div className="preset-bar__details">
 					{activePresets.map((preset) => {
-						const copy = localizePresetCopy(locale, preset);
+						const copy = presetCopy(preset.id, locale);
 
 						return (
 							<div key={preset.id} className="preset-bar__detail">
 								<Text as="strong" size="sm" bold>
-									{PRESET_TITLE_KEYS[preset.id]
-										? t(PRESET_TITLE_KEYS[preset.id])
-										: preset.title}
+									{copy?.title ?? preset.id}
 								</Text>
 								<Text variant="secondary" size="sm">
-									<InlineText text={copy.summary ?? preset.summary} />
+									<InlineText text={copy?.summary ?? ""} />
 								</Text>
 								<Text variant="secondary" size="sm">
-									<InlineText text={copy.rationale ?? preset.rationale} />
+									<InlineText text={copy?.rationale ?? ""} />
 								</Text>
 							</div>
 						);
@@ -88,7 +83,7 @@ export default function PresetBar() {
 				</div>
 			) : (
 				<Text variant="secondary" size="sm">
-					{t("preset.orTick")}
+					{t("presets.empty")}
 				</Text>
 			)}
 		</div>

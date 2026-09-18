@@ -4,26 +4,30 @@ import { Link } from "@tanstack/react-router";
 import { useSelector } from "@tanstack/react-store";
 import { postsQueryOptions } from "#/content/posts-query";
 import { isFieldActive } from "#/docker/build-spec";
-import { SECTIONS } from "#/docker/catalog";
-import { localizedPostText, useI18n } from "#/i18n";
+import { getSections } from "#/i18n/catalog";
+import { useLocale, useT } from "#/i18n/locale-context";
 import { generatorStore } from "#/store/generator-store";
 
 /**
  * Surfaces the field guide entries that explain whatever is currently switched
  * on. Reads through TanStack Query, so the blog routes and this panel share one
- * cache entry and one dynamic import.
+ * cache entry and one dynamic import — per locale, since the query key carries
+ * it.
  */
 export default function FurtherReading() {
-	const { locale, t } = useI18n();
-	const { data: posts, isPending } = useQuery(postsQueryOptions());
+	const t = useT();
+	const { locale } = useLocale();
+	const { data: posts, isPending } = useQuery(postsQueryOptions(locale));
 
 	const activeSections = useSelector(generatorStore, (state) => {
-		const ids = SECTIONS.filter((section) =>
-			section.fields.some((field) => {
-				const fieldState = state.states[field.id];
-				return fieldState ? isFieldActive(field, fieldState) : false;
-			}),
-		).map((section) => section.id);
+		const ids = getSections(locale)
+			.filter((section) =>
+				section.fields.some((field) => {
+					const fieldState = state.states[field.id];
+					return fieldState ? isFieldActive(field, fieldState) : false;
+				}),
+			)
+			.map((section) => section.id);
 		return ids.join(",");
 	});
 
@@ -36,9 +40,11 @@ export default function FurtherReading() {
 	return (
 		<div className="panel">
 			<div className="further-reading__header">
-				<p className="kicker">{t("reading.kicker")}</p>
+				<p className="kicker">{t("furtherReading.kicker")}</p>
 				<Text variant="heading3" as="h2">
-					{active.size === 0 ? t("reading.start") : t("reading.background")}
+					{active.size === 0
+						? t("furtherReading.startHere")
+						: t("furtherReading.forConfigured")}
 				</Text>
 			</div>
 
@@ -46,28 +52,24 @@ export default function FurtherReading() {
 				<div className="further-reading__loading">
 					<Loader size="sm" />
 					<Text variant="secondary" size="sm" as="span">
-						{t("reading.loading")}
+						{t("furtherReading.loading")}
 					</Text>
 				</div>
 			) : null}
 
 			<ul className="further-reading__list">
-				{relevant.map((post) => {
-					const text = localizedPostText(post.slug, locale, post);
-
-					return (
-						<li key={post.slug}>
-							<Link
-								to="/blog/$slug"
-								params={{ slug: post.slug }}
-								className="further-reading__card"
-							>
-								<strong className="further-reading__title">{text.title}</strong>
-								<p className="further-reading__summary">{text.summary}</p>
-							</Link>
-						</li>
-					);
-				})}
+				{relevant.map((post) => (
+					<li key={post.slug}>
+						<Link
+							to="/blog/$slug"
+							params={{ slug: post.slug }}
+							className="further-reading__card"
+						>
+							<strong className="further-reading__title">{post.title}</strong>
+							<p className="further-reading__summary">{post.summary}</p>
+						</Link>
+					</li>
+				))}
 			</ul>
 		</div>
 	);

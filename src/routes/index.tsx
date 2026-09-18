@@ -6,9 +6,10 @@ import FurtherReading from "#/components/generator/FurtherReading";
 import OutputPanel from "#/components/generator/OutputPanel";
 import PresetBar from "#/components/generator/PresetBar";
 import SectionPanel from "#/components/generator/SectionPanel";
-import { ALL_FIELDS, SECTIONS } from "#/docker/catalog";
+import InlineText from "#/components/InlineText";
 import { API_DOC_URL, API_VERSION } from "#/docker/request";
-import { useI18n } from "#/i18n";
+import { getFields, getSections } from "#/i18n/catalog";
+import { useLocale, useT } from "#/i18n/locale-context";
 import type { GeneratorSearch } from "#/lib/use-generator-url-sync";
 import { useGeneratorUrlSync } from "#/lib/use-generator-url-sync";
 import type { OutputFormat } from "#/store/generator-store";
@@ -27,48 +28,44 @@ export const Route = createFileRoute("/")({
 				: undefined,
 	}),
 	component: GeneratorPage,
-	head: () => ({
-		meta: [
-			{ title: "Docker Service Update Builder" },
-			{
-				name: "description",
-				content:
-					"Build a Docker Engine API ServiceUpdate object visually and export it as JSON, YAML or curl.",
-			},
-		],
-	}),
 });
 
 function GeneratorPage() {
+	const t = useT();
+	const { locale } = useLocale();
 	const search = Route.useSearch();
 	useGeneratorUrlSync(search);
 
+	// The catalog is read per locale rather than localizing inside the renderer,
+	// so the search filter and the `aria-label`s pick up translated prose for
+	// free. Both calls are cached per locale, so the arrays keep their identity.
+	const sections = getSections(locale);
+	const fields = getFields(locale);
 	const filter = useSelector(generatorStore, (state) => state.filter);
-	const { t } = useI18n();
 
 	return (
 		<main className="page page--wide">
 			<section className="panel panel--hero rise-in home-hero">
 				<p className="kicker">{t("home.kicker", { version: API_VERSION })}</p>
 				<Text variant="heading1" as="h1">
-					{t("home.title")}
+					{t("home.heading")}
 				</Text>
-				<Text variant="secondary">{t("home.intro")}</Text>
+				<Text variant="secondary">
+					<InlineText text={t("home.intro")} />
+				</Text>
 				<Banner
 					className="home-hero__callout"
 					variant="alert"
 					icon={<WarningIcon weight="fill" />}
 				>
 					<p>
-						<strong>{t("home.readFirst")}</strong>{" "}
-						<code>POST /services/&#123;id&#125;/update</code>{" "}
-						{t("home.warning")} <code>GET /services/&#123;id&#125;</code>.{" "}
-						{t("home.warningEnd")}
+						<strong>{t("home.warningLead")}</strong>{" "}
+						<InlineText text={t("home.warningBody")} />
 					</p>
 				</Banner>
 				<Text size="sm">
 					<a href={API_DOC_URL} target="_blank" rel="noreferrer">
-						{t("home.apiReference", { version: API_VERSION })}
+						{t("home.apiRef", { version: API_VERSION })}
 					</a>
 				</Text>
 			</section>
@@ -82,10 +79,10 @@ function GeneratorPage() {
 						    text, so the filter needs no id of its own to stay associated. */}
 						<Input
 							type="search"
-							label={t("home.findField")}
+							label={t("home.searchLabel")}
 							description={t("home.searchDescription", {
-								fields: ALL_FIELDS.length,
-								sections: SECTIONS.length,
+								fields: fields.length,
+								sections: sections.length,
 							})}
 							value={filter}
 							placeholder={t("home.searchPlaceholder")}
@@ -95,7 +92,7 @@ function GeneratorPage() {
 						/>
 					</div>
 
-					{SECTIONS.map((section) => (
+					{sections.map((section) => (
 						<SectionPanel key={section.id} section={section} filter={filter} />
 					))}
 				</div>

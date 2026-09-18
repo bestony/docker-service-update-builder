@@ -14,9 +14,10 @@
     "lint": "biome lint",
     "check": "biome check",
     "check-types": "tsc --noEmit",
-    "verify": "pnpm check && pnpm check-types && pnpm build",
+    "verify": "pnpm check && pnpm check-types && pnpm check-i18n && pnpm build",
     "deploy": "pnpm build && wrangler deploy",
-    "cf-typegen": "wrangler types"
+    "cf-typegen": "wrangler types",
+    "check-i18n": "vite-node --config scripts/vite-node.config.ts scripts/check-i18n.ts"
   },
   "dependencies": {
     "@cloudflare/kumo": "^2.9.0",
@@ -45,6 +46,7 @@
     "@vitejs/plugin-react": "^6.0.1",
     "typescript": "^6.0.2",
     "vite": "^8.0.0",
+    "vite-node": "^6.0.0",
     "wrangler": "^4.118.0"
   },
   "pnpm": {

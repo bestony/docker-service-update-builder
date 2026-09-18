@@ -1,3 +1,4 @@
+import type { Translate } from "../i18n/translate";
 import type { JsonValue, UpdateRequestOptions } from "./build-spec";
 
 /** The Engine API version this catalog was generated against. */
@@ -23,26 +24,30 @@ export function buildUpdatePath(options: UpdateRequestOptions): string {
  * The generated body is a *partial* spec on purpose — it is the diff you want.
  * Step 1 exists because the daemon replaces the whole ServiceSpec, so the diff
  * has to be merged into the current spec before it is sent back.
+ *
+ * Only the comments are localized; the commands themselves are the same text in
+ * every language, because that is what has to be pasted into a shell.
  */
 export function buildCurlScript(
 	spec: Record<string, JsonValue>,
 	options: UpdateRequestOptions,
+	t: Translate,
 ): string {
 	const socket = "--unix-socket /var/run/docker.sock";
 	const host = "http://localhost";
 	const body = `${JSON.stringify(spec, null, 2)}\n`;
 
 	const readStep = [
-		"# 1. Read the current spec and its version index.",
+		t("curl.readStep"),
 		`curl -s ${socket} \\`,
 		`  ${host}/${API_VERSION}/services/${options.serviceId} \\`,
 		"  | jq '{ version: .Version.Index, spec: .Spec }'",
 	].join("\n");
 
 	const mergeStep = [
-		"# 2. Merge the object below into that .Spec (jq '. * $patch' does a deep merge),",
-		"#    then POST the merged spec back. Sending the patch on its own would",
-		"#    clear every key you left out.",
+		t("curl.mergeStep"),
+		t("curl.mergeStep2"),
+		t("curl.mergeStep3"),
 	].join("\n");
 
 	const writeStep = [

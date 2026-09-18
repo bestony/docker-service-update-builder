@@ -2,8 +2,9 @@ import { Badge, type BadgeVariant, Banner, Text } from "@cloudflare/kumo";
 import { useSelector } from "@tanstack/react-store";
 import type { ComponentProps } from "react";
 import type { IssueLevel } from "#/docker/validate";
-import { type MessageKey, useI18n } from "#/i18n";
-import { issuesAtom } from "#/store/generator-store";
+import { useLocale, useT } from "#/i18n/locale-context";
+import type { MessageKey } from "#/i18n/translate";
+import { issuesAtomFor } from "#/store/generator-store";
 import InlineText from "../InlineText";
 
 type BannerVariant = ComponentProps<typeof Banner>["variant"];
@@ -22,9 +23,9 @@ const LEVEL_BADGE: Record<IssueLevel, BadgeVariant> = {
 };
 
 const LEVEL_LABEL: Record<IssueLevel, MessageKey> = {
-	error: "review.error",
-	warning: "review.warning",
-	info: "review.info",
+	error: "review.levelError",
+	warning: "review.levelWarning",
+	info: "review.levelInfo",
 };
 
 /**
@@ -33,15 +34,16 @@ const LEVEL_LABEL: Record<IssueLevel, MessageKey> = {
  * — rather than a clean validation failure.
  */
 export default function IssueList() {
-	const { t } = useI18n();
-	const issues = useSelector(issuesAtom);
+	const t = useT();
+	const { locale } = useLocale();
+	const issues = useSelector(issuesAtomFor(locale));
 
 	if (issues.length === 0) {
 		return (
 			<div className="panel issue-list">
-				<p className="kicker">{t("review.title")}</p>
+				<p className="kicker">{t("review.kicker")}</p>
 				<Text variant="secondary" size="sm">
-					{t("review.none")}
+					{t("review.empty")}
 				</Text>
 			</div>
 		);
@@ -50,11 +52,10 @@ export default function IssueList() {
 	return (
 		<div className="panel issue-list">
 			<div className="issue-list__header">
-				<p className="kicker">{t("review.title")}</p>
+				<p className="kicker">{t("review.kicker")}</p>
 				<Text variant="heading3" as="h2">
-					{t("review.thingsToCheck", {
+					{t(issues.length === 1 ? "review.countOne" : "review.countOther", {
 						count: issues.length,
-						suffix: issues.length === 1 ? "" : "s",
 					})}
 				</Text>
 			</div>

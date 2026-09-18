@@ -1,3 +1,5 @@
+import type { MessageKey, Translate } from "../i18n/translate";
+
 /**
  * Unit helpers for the Docker Engine API.
  *
@@ -6,6 +8,10 @@
  * seconds, gibibytes and fractional cores, so every numeric field in the
  * generator is edited in a friendly unit and serialised back to the raw scalar
  * the API expects.
+ *
+ * Nothing here depends on a locale beyond the `t` function passed in: the unit
+ * *symbols* (`ns`, `GiB`) are the Engine's own vocabulary and stay put in every
+ * language, and only the spelled-out units are translated.
  */
 
 export interface UnitOption {
@@ -38,6 +44,23 @@ export const BYTE_UNITS: Array<UnitOption> = [
 
 export const NANO_CPUS_PER_CORE = 1_000_000_000;
 
+/**
+ * The four unit ids whose label is a word rather than a symbol. `ns`, `ms`,
+ * `KiB` and friends are units of measurement, not English, so they are never
+ * translated.
+ */
+const SPOKEN_UNIT: Record<string, MessageKey> = {
+	s: "units.seconds",
+	m: "units.minutes",
+	h: "units.hours",
+	B: "units.bytes",
+};
+
+export function unitLabel(unit: UnitOption, t: Translate): string {
+	const key = SPOKEN_UNIT[unit.id];
+	return key ? t(key) : unit.label;
+}
+
 export function findUnit(
 	units: Array<UnitOption>,
 	id: string | undefined,
@@ -63,9 +86,11 @@ export function formatBytes(bytes: number): string {
 }
 
 /** Renders a nanosecond duration as the largest unit that stays exact-ish. */
-export function formatDurationNs(nanoseconds: number): string {
+export function formatDurationNs(nanoseconds: number, t: Translate): string {
 	if (!Number.isFinite(nanoseconds)) return String(nanoseconds);
-	if (nanoseconds === 0) return "0s (inherit / unbounded)";
+	// Zero is meaningful rather than absent: for every duration field the API
+	// reads it as "use the image's value", which is worth spelling out.
+	if (nanoseconds === 0) return t("units.inherit");
 	const negative = nanoseconds < 0;
 	const abs = Math.abs(nanoseconds);
 	let unit = DURATION_UNITS[0];
@@ -80,11 +105,13 @@ export function formatDurationNs(nanoseconds: number): string {
 }
 
 /** Renders nano CPUs as cores, which is what the CLI flags accept. */
-export function formatNanoCpus(nanoCpus: number): string {
+export function formatNanoCpus(nanoCpus: number, t: Translate): string {
 	if (!Number.isFinite(nanoCpus)) return String(nanoCpus);
 	const cores = nanoCpus / NANO_CPUS_PER_CORE;
 	const rendered = Number.isInteger(cores) ? String(cores) : cores.toFixed(3);
-	return `${rendered} core${cores === 1 ? "" : "s"}`;
+	return t(cores === 1 ? "units.coresOne" : "units.coresOther", {
+		count: rendered,
+	});
 }
 
 /**

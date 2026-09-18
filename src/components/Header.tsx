@@ -1,9 +1,9 @@
 import { LinkButton } from "@cloudflare/kumo";
 import { GithubLogoIcon, XLogoIcon } from "@phosphor-icons/react";
 import { Link } from "@tanstack/react-router";
+import { useT } from "#/i18n/locale-context";
 import { AUTHOR_X_URL, PROJECT_GITHUB_URL } from "#/site-links";
-import { useI18n } from "../i18n";
-import LanguageToggle from "./LanguageToggle";
+import LocaleToggle from "./LocaleToggle";
 import ThemeToggle from "./ThemeToggle";
 
 /**
@@ -14,7 +14,7 @@ import ThemeToggle from "./ThemeToggle";
 const NAV_ACTIVE_PROPS = { className: "site-nav__link--active" };
 
 export default function Header() {
-	const { t } = useI18n();
+	const t = useT();
 
 	return (
 		<header className="site-header">
@@ -22,7 +22,7 @@ export default function Header() {
 				<h2 className="site-header__brand">
 					<Link to="/" className="site-header__brand-link">
 						<span className="site-header__brand-dot" aria-hidden="true" />
-						{t("nav.brand")}
+						{t("header.brand")}
 					</Link>
 				</h2>
 
@@ -32,21 +32,21 @@ export default function Header() {
 						className="site-nav__link"
 						activeProps={NAV_ACTIVE_PROPS}
 					>
-						{t("nav.builder")}
+						{t("header.navBuilder")}
 					</Link>
 					<Link
 						to="/blog"
 						className="site-nav__link"
 						activeProps={NAV_ACTIVE_PROPS}
 					>
-						{t("nav.fieldGuide")}
+						{t("header.navGuide")}
 					</Link>
 					<Link
 						to="/about"
 						className="site-nav__link"
 						activeProps={NAV_ACTIVE_PROPS}
 					>
-						{t("nav.about")}
+						{t("header.navAbout")}
 					</Link>
 					<a
 						href="https://docs.docker.com/reference/api/engine/version/v1.43/#tag/Service/operation/ServiceUpdate"
@@ -54,7 +54,7 @@ export default function Header() {
 						target="_blank"
 						rel="noreferrer"
 					>
-						{t("nav.apiDocs")}
+						{t("header.navApiDocs")}
 					</a>
 				</div>
 
@@ -67,7 +67,7 @@ export default function Header() {
 						variant="ghost"
 						className="site-header__social"
 						icon={<XLogoIcon size={16} aria-hidden="true" />}
-						aria-label={t("nav.followX")}
+						aria-label={t("header.followX")}
 					/>
 					<LinkButton
 						href={PROJECT_GITHUB_URL}
@@ -77,10 +77,10 @@ export default function Header() {
 						variant="ghost"
 						className="site-header__social"
 						icon={<GithubLogoIcon size={16} aria-hidden="true" />}
-						aria-label={t("nav.github")}
+						aria-label={t("header.github")}
 					/>
 
-					<LanguageToggle />
+					<LocaleToggle />
 					<ThemeToggle />
 				</div>
 			</nav>

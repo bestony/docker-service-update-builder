@@ -3,11 +3,11 @@ import { DownloadSimpleIcon } from "@phosphor-icons/react";
 import { useSelector } from "@tanstack/react-store";
 import { countActiveFields } from "#/docker/build-spec";
 import { API_DOC_URL, API_VERSION, buildUpdatePath } from "#/docker/request";
-import { useI18n } from "#/i18n";
+import { useLocale, useT } from "#/i18n/locale-context";
 import type { OutputFormat } from "#/store/generator-store";
 import {
 	generatorStore,
-	outputAtom,
+	outputAtomFor,
 	requestOptionsAtom,
 } from "#/store/generator-store";
 import CopyButton from "./CopyButton";
@@ -50,12 +50,13 @@ function download(text: string, filename: string) {
 }
 
 export default function OutputPanel() {
-	const { t } = useI18n();
+	const t = useT();
+	const { locale } = useLocale();
 	const format = useSelector(generatorStore, (state) => state.format);
 	const activeCount = useSelector(generatorStore, (state) =>
 		countActiveFields(state.states),
 	);
-	const output = useSelector(outputAtom);
+	const output = useSelector(outputAtomFor(locale));
 	const requestOptions = useSelector(requestOptionsAtom);
 	const formatHint =
 		format === "json"
@@ -69,12 +70,14 @@ export default function OutputPanel() {
 			<div className="panel">
 				<div className="output-panel__header">
 					<div className="output-panel__title">
-						<p className="kicker">{t("output.generated")}</p>
+						<p className="kicker">{t("output.kicker")}</p>
 						<Text variant="heading3" as="h2">
-							{t("output.fieldsIncluded", {
-								count: activeCount,
-								suffix: activeCount === 1 ? "" : "s",
-							})}
+							{t(
+								activeCount === 1
+									? "output.includedOne"
+									: "output.includedOther",
+								{ count: activeCount },
+							)}
 						</Text>
 					</div>
 					<div className="output-panel__actions">
@@ -121,7 +124,7 @@ export default function OutputPanel() {
 				<Text variant="secondary" size="xs">
 					Engine API {API_VERSION} —{" "}
 					<Link href={API_DOC_URL} target="_blank" rel="noreferrer">
-						{t("output.apiReference")}
+						{t("output.apiRef")}
 					</Link>
 				</Text>
 			</div>

@@ -13,34 +13,29 @@ export function createInitialStates(): FieldStates {
 
 type PresetValue = Partial<Omit<FieldState, "enabled">>;
 
+/**
+ * A preset is its id and its field values — nothing else.
+ *
+ * The title, summary and rationale are prose, so they live in the message
+ * dictionary under `presets.items.<id>` (`src/i18n/presets.ts` maps the id to
+ * the dictionary segment). Keeping them out of here means the `values` table
+ * stays a pure data structure and the ids, which are the only part that reaches
+ * the store, never move.
+ */
 export interface Preset {
 	id: string;
-	title: string;
-	summary: string;
-	/** Why an operator would reach for this shape, in one paragraph. */
-	rationale: string;
 	values: Record<string, PresetValue>;
 }
 
 export const PRESETS: Array<Preset> = [
 	{
 		id: "memory-limit",
-		title: "Raise the memory limit",
-		summary:
-			"The minimal one-key body: TaskTemplate.Resources.Limits.MemoryBytes.",
-		rationale:
-			"The smallest useful update body there is. It is also the clearest illustration of why partial specs are dangerous: sent on its own it would erase the image, the environment and every mount, so this object has to be merged into the spec you read back from GET /services/{id}.",
 		values: {
 			"limit-memory": { value: "12", unit: "GiB" },
 		},
 	},
 	{
 		id: "zero-downtime",
-		title: "Zero-downtime rollout",
-		summary:
-			"start-first ordering, a real health check, and automatic rollback when the new version misbehaves.",
-		rationale:
-			"The combination that makes a deploy invisible to users: one task at a time, the replacement starts before the old one stops, each new task is watched for long enough that a crash-loop is caught, and a failure reverts the service instead of leaving it half-updated.",
 		values: {
 			"update-parallelism": { value: "1" },
 			"update-delay": { value: "10", unit: "s" },
@@ -64,10 +59,6 @@ export const PRESETS: Array<Preset> = [
 	},
 	{
 		id: "scale",
-		title: "Scale replicas",
-		summary: "Change Mode.Replicated.Replicas and nothing else.",
-		rationale:
-			"Scaling is the cheapest update Swarm knows: the task template is untouched, so no image is pulled and no running task is replaced — Swarm simply starts or stops replicas.",
 		values: {
 			"mode-kind": { value: "replicated" },
 			replicas: { value: "5" },
@@ -75,21 +66,12 @@ export const PRESETS: Array<Preset> = [
 	},
 	{
 		id: "force-redeploy",
-		title: "Force a redeploy",
-		summary: "Bump TaskTemplate.ForceUpdate to re-pull a mutable tag.",
-		rationale:
-			"Swarm only acts when the spec changes. After re-pushing the same tag nothing differs, so the rollout never happens. Incrementing this counter creates a spec difference and the normal UpdateConfig rollout runs.",
 		values: {
 			"force-update": { value: "1" },
 		},
 	},
 	{
 		id: "hardened",
-		title: "Hardened container",
-		summary:
-			"Read-only root, all capabilities dropped, an init process and a non-root user.",
-		rationale:
-			"The default posture a security review asks for. The tmpfs mount is not optional — a read-only root filesystem breaks almost every image that writes to /tmp during startup.",
 		values: {
 			"read-only": { value: "true" },
 			init: { value: "true" },
@@ -110,11 +92,6 @@ export const PRESETS: Array<Preset> = [
 	},
 	{
 		id: "manual-rollback",
-		title: "Manual rollback",
-		summary:
-			"Call the endpoint with ?rollback=previous and let the body be ignored.",
-		rationale:
-			"The escape hatch when a deploy went out and nobody configured automatic rollback. The daemon restores PreviousSpec; the body is still required by the endpoint but its contents are discarded — which is why the generated JSON here is intentionally almost empty.",
 		values: {
 			"req-rollback": { value: "previous" },
 			"req-registry-auth-from": { value: "previous-spec" },

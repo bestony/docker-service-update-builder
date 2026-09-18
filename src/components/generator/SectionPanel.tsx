@@ -2,45 +2,46 @@ import { Badge, Text } from "@cloudflare/kumo";
 import { useSelector } from "@tanstack/react-store";
 import { useState } from "react";
 import { isFieldActive } from "#/docker/build-spec";
-import { fieldSearchText, localizeSectionCopy } from "#/docker/catalog-copy";
 import type { FieldDef, SectionDef } from "#/docker/field-types";
-import { type Locale, type MessageKey, useI18n } from "#/i18n";
-import { generatorStore, issuesAtom } from "#/store/generator-store";
+import { useLocale, useT } from "#/i18n/locale-context";
+import { generatorStore, issuesAtomFor } from "#/store/generator-store";
 import InlineText from "../InlineText";
 import FieldEditor from "./FieldEditor";
-
-const SECTION_TITLE_KEYS: Record<string, MessageKey> = {
-	service: "section.service",
-	mode: "section.mode",
-	container: "section.container",
-	health: "section.health",
-	storage: "section.storage",
-	resources: "section.resources",
-	restart: "section.restart",
-	placement: "section.placement",
-	network: "section.network",
-	"task-misc": "section.task-misc",
-	"update-config": "section.update-config",
-	"rollback-config": "section.rollback-config",
-	request: "section.request",
-} as const;
 
 interface SectionPanelProps {
 	section: SectionDef;
 	filter: string;
 }
 
-function matches(field: FieldDef, needle: string, locale: Locale): boolean {
+/**
+ * The section arrives already localized (`getSections(locale)`), so the filter
+ * matches against translated prose for free — searching "内存" finds the
+ * memory fields without any second index to maintain.
+ */
+function matches(field: FieldDef, needle: string): boolean {
 	if (needle === "") return true;
-	return fieldSearchText(locale, field).includes(needle);
+	const haystack = [
+		field.id,
+		field.key,
+		field.path,
+		field.title,
+		field.summary,
+		...field.details,
+		field.caution ?? "",
+		field.cli ?? "",
+		field.compose ?? "",
+	]
+		.join(" ")
+		.toLowerCase();
+	return haystack.includes(needle);
 }
 
 export default function SectionPanel({ section, filter }: SectionPanelProps) {
-	const { locale, t } = useI18n();
-	const copy = localizeSectionCopy(locale, section);
+	const t = useT();
+	const { locale } = useLocale();
 	const needle = filter.trim().toLowerCase();
 	const visibleFields = section.fields.filter((field) =>
-		matches(field, needle, locale),
+		matches(field, needle),
 	);
 	const activeCount = useSelector(
 		generatorStore,
@@ -50,7 +51,7 @@ export default function SectionPanel({ section, filter }: SectionPanelProps) {
 				return fieldState ? isFieldActive(field, fieldState) : false;
 			}).length,
 	);
-	const flagged = useSelector(issuesAtom, (issues) => {
+	const flagged = useSelector(issuesAtomFor(locale), (issues) => {
 		const ids = new Set<string>();
 		for (const issue of issues) {
 			if (issue.level === "info") continue;
@@ -83,18 +84,16 @@ export default function SectionPanel({ section, filter }: SectionPanelProps) {
 						<code>{section.path}</code>
 					</span>
 					<Text variant="heading3" as="h2">
-						{SECTION_TITLE_KEYS[section.id]
-							? t(SECTION_TITLE_KEYS[section.id])
-							: section.title}
+						{section.title}
 					</Text>
 					<Text variant="secondary" size="sm" as="span">
-						<InlineText text={copy.summary ?? section.summary} />
+						<InlineText text={section.summary} />
 					</Text>
 				</span>
 				<span className="section-panel__badges">
 					{activeCount > 0 ? (
 						<Badge variant="neutral">
-							{activeCount} {t("section.set")}
+							{t("section.set", { count: activeCount })}
 						</Badge>
 					) : null}
 					<Badge variant="outline">
@@ -105,7 +104,7 @@ export default function SectionPanel({ section, filter }: SectionPanelProps) {
 
 			{expanded ? (
 				<>
-					{(copy.details ?? section.details)?.map((paragraph) => (
+					{section.details?.map((paragraph) => (
 						<Text key={paragraph.slice(0, 32)} variant="secondary" size="sm">
 							<InlineText text={paragraph} />
 						</Text>

@@ -1,3 +1,4 @@
+import type { Translate } from "../i18n/translate";
 import { SPEC_SECTIONS } from "./catalog";
 import type { FieldDef, FieldState, RowColumn } from "./field-types";
 import {
@@ -249,24 +250,29 @@ export function buildRequestOptions(states: FieldStates): UpdateRequestOptions {
 export function describeDerivedValue(
 	field: FieldDef,
 	state: FieldState,
+	t: Translate,
 ): string | undefined {
 	const value = toJsonValue(field, state);
 	if (value === undefined) return undefined;
 
 	switch (field.type) {
 		case "duration":
-			return `${value} ns — ${formatDurationNs(value as number)}`;
+			return `${value} ns — ${formatDurationNs(value as number, t)}`;
 		case "bytes":
 			return `${value} bytes — ${formatBytes(value as number)}`;
 		case "cpu":
-			return `${value} nano CPUs — ${formatNanoCpus(value as number)}`;
+			return `${value} nano CPUs — ${formatNanoCpus(value as number, t)}`;
 		case "lines":
-		case "rows":
-			return `${(value as Array<unknown>).length} entr${
-				(value as Array<unknown>).length === 1 ? "y" : "ies"
-			}`;
+		case "rows": {
+			const count = (value as Array<unknown>).length;
+			return t(count === 1 ? "units.entriesOne" : "units.entriesOther", {
+				count,
+			});
+		}
 		case "mapLines":
-			return `${Object.keys(value as object).length} key(s)`;
+			return t("units.keys", {
+				count: Object.keys(value as object).length,
+			});
 		default:
 			return JSON.stringify(value);
 	}

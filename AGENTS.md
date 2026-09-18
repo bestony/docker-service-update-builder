@@ -141,6 +141,7 @@ Notes on that command line, from the CLI's own output:
 | Routing | TanStack Router, file-based | `src/routes/`, `src/routeTree.gen.ts` |
 | State | TanStack Store 0.11 | `src/store/generator-store.ts` |
 | Async | TanStack Query | `src/content/posts-query.ts`, blog route loaders |
+| Language | Hand-rolled i18n (en/zh) | `src/i18n/`, cookie + `Accept-Language` |
 | Agent guidance | TanStack Intent | the skill block at the top of this file |
 | Scaffolding | TanStack CLI | `.cta.json` records the chosen add-ons |
 | Toolchain | Biome 2.4.5 | `biome.json`, `pnpm check` |
@@ -181,6 +182,11 @@ typed content in `src/content/posts.ts`. To adopt a real template later, pass
 7. **No backend.** No `createServerFn`, no server routes, no secrets. The app
    cannot talk to a daemon and must not learn to.
 8. **Kumo for components, hand-written CSS for everything else.** See *Styling*.
+9. **Translation is data, keyed by id.** `src/i18n/` holds parallel tables keyed
+   by field id and message path, never by import position, so reordering the
+   catalog cannot pair the wrong prose with the wrong field. The English catalog
+   keeps its own copy as the fallback and as the source to translate from. See
+   *i18n*.
 
 ## Styling
 
@@ -232,6 +238,85 @@ server beyond SSR, either target works:
 Load the `start-core/deployment` skill before configuring prerendering or SPA
 mode — those options changed shape recently.
 
+## i18n
+
+The site ships English and Chinese. There is **no language prefix in the URL** —
+`?c=` permalinks and `/blog/$slug` links stay language-independent, so a link
+pasted into chat opens in whatever language the reader has chosen.
+
+How the language is chosen, in priority order:
+
+1. The `locale` cookie (set only by an explicit switch).
+2. `Accept-Language`, on the server only.
+3. English.
+
+The server resolves it in `__root.tsx`'s `beforeLoad` via
+`resolveLocaleForRequest()` (`createIsomorphicFn`, so the
+`@tanstack/react-start/server` import is compiled out of the client bundle — a
+static import plus a `typeof window` guard builds fine in dev and fails the
+production build on Start's import-protection check). The value goes into route
+context, which is the one channel every child loader and `head` can read:
+`<html lang>`, the blog query keys and each page's `<title>` all depend on it.
+
+**No client-side `navigator.language` fallback.** The server cannot see the
+navigator, so using it would guarantee a hydration mismatch on the first paint.
+The cookie is written on every switch precisely so both sides can agree on it.
+
+### Where copy lives
+
+| Kind of text | Location |
+| --- | --- |
+| Chrome, controls, page copy | `src/i18n/messages-en.ts` + `messages-zh.ts` |
+| Catalog prose (titles, summaries, details, cautions, option hints) | `src/i18n/catalog/*.ts`, parallel tables keyed by field id |
+| Preset title/summary/rationale | `messages-*.ts` under `presets.items.*` |
+| Field guide articles | `src/content/posts.ts` + `posts.zh.ts` |
+| Validation findings | `messages-*.ts` under `issues.*` |
+
+English stays in `src/docker/catalog/*.ts` as the fallback and as the thing you
+translate *from*. `messages-zh.ts` is typed as `UiMessagesShape` (the English
+dictionary with literal types widened), so a missing or misspelled key fails
+`pnpm check-types`.
+
+`presets.ts` holds no prose at all — only ids and field values. The id is a wire
+value that ends up in the store and in permalinks, so it must never move;
+`src/i18n/presets.ts` maps it to the dictionary segment.
+
+### Not translated, on purpose
+
+JSON keys, Engine API enum values, `apiDefault` when it is a bare value, CLI
+flags, Compose keys, placeholders, sample `code` blocks, unit symbols (`ns`,
+`GiB`) and the dev-only TanStack devtools panel. Those are the product's
+identity — a translated `--limit-cpu` is a broken command.
+
+The catalog's `title` for a field is usually the JSON key itself (`Order`,
+`registryAuthFrom`), so it stays English in both languages. `check-i18n` treats a
+single token as a name rather than a sentence: only text containing whitespace is
+required to differ between the two.
+
+### Adding a field
+
+1. Add the `FieldDef` to the catalog as usual.
+2. Add its Chinese copy to the matching `src/i18n/catalog/*.ts` table.
+3. `pnpm check-i18n` now fails until you do — it asserts every field id has an
+   entry, that `details`, `options` and `columns` are the same length on both
+   sides, that option/column `value`/`key` are untouched, and that no English
+   sentence survived verbatim.
+
+The compile-time `satisfies` on `zh` only covers the message dictionaries; a
+mapped type over the catalog would catch a missing *key* but not a dropped
+paragraph, and would need every catalog file to switch to a const assertion for
+that one check. The runtime check covers more for less.
+
+### Locale independence of the output
+
+`buildServiceSpec` takes no locale — a language switch can never change what gets
+deployed. Only two derived values carry prose, and both are keyed by locale in
+`generator-store.ts` (`issuesAtomFor`, `outputAtomFor`) so their atom identity is
+stable across renders. `specAtom` and `requestOptionsAtom` stay singletons.
+`src/docker/units.ts`, `build-spec.ts`, `request.ts` and `validate.ts` take a `t`
+function rather than a `Locale`, which keeps the dependency pointing
+`i18n -> docker` and never back.
+
 ## Known gotchas
 
 - **A fresh scaffold fails `pnpm check`.** The CLI emits Prettier-style sources
@@ -257,11 +342,28 @@ mode — those options changed shape recently.
   `[Server] [vite]` warnings. They are not application errors.
 - **`?c=` permalinks are deliberately lossy.** `decodeStates` drops unknown
   field ids so an old link still opens after the catalog changes.
+- **`pnpm check-i18n` needs its own Vite config.** `scripts/check-i18n.ts` runs
+  under `vite-node --config scripts/vite-node.config.ts`; the app's real config
+  pulls in the Cloudflare and Start plugins, whose watchers hold the process
+  open and make the script hang instead of exiting.
+- **`zh-TW` gets simplified Chinese.** `normalizeLocale` matches on the primary
+  subtag only. There is no traditional-Chinese table; adding one means a third
+  entry in `LOCALES` and a third dictionary.
+- **A language switch calls `router.invalidate()`.** Every route's `head` is
+  computed from the locale held in route context, and `beforeLoad` only reruns
+  on a navigation — so without the invalidate the tab title stays in the old
+  language until the reader clicks a link. The loaders below hit the TanStack
+  Query cache, so nothing is actually refetched. `<html lang>` is corrected in
+  the same provider by an effect, since the shell's copy of it is stale too.
+- **Presets toggle, they do not replace.** Several can be active at once
+  (`presetIds` in the store) and the panel lists every active rationale. The
+  prose for each lives in the dictionary under `presets.items.<id>`.
 
 ## Verify
 
 ```bash
-pnpm verify        # biome check && tsc --noEmit && vite build
+pnpm verify        # biome check && tsc --noEmit && check-i18n && vite build
+pnpm check-i18n    # bilingual content self-check, on its own
 pnpm generate-routes   # after adding or renaming a file in src/routes/
 ```
 

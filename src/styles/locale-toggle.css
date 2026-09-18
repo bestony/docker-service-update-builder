@@ -1,0 +1,19 @@
+/*
+ * LocaleToggle.
+ *
+ * Same treatment as ThemeToggle: the button is a Kumo `Button`, and all this
+ * file does is drop the short language label on narrow screens, where the
+ * translate icon alone plus the accessible name already carries the meaning.
+ */
+
+@media (max-width: 30rem) {
+	.locale-toggle__label {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		margin: -1px;
+		overflow: hidden;
+		clip-path: inset(50%);
+		white-space: nowrap;
+	}
+}

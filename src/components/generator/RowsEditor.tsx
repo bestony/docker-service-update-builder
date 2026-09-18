@@ -3,7 +3,7 @@ import { PlusIcon, TrashIcon } from "@phosphor-icons/react";
 import { useSelector } from "@tanstack/react-store";
 import { useId } from "react";
 import type { FieldDef, RowColumn } from "#/docker/field-types";
-import { useI18n } from "#/i18n";
+import { useT } from "#/i18n/locale-context";
 import { generatorStore } from "#/store/generator-store";
 import InlineText from "../InlineText";
 
@@ -54,7 +54,7 @@ function Cell({
 	value: string;
 	onChange: (next: string) => void;
 }) {
-	const { t } = useI18n();
+	const t = useT();
 	if (column.type === "boolean") {
 		return (
 			<span className="rows-editor__toggle">
@@ -69,7 +69,9 @@ function Cell({
 				 * `aria-label` and would leave the control announcing itself as
 				 * "unset" instead of naming the column.
 				 */}
-				<span aria-hidden="true">{value === "true" ? "true" : "unset"}</span>
+				<span aria-hidden="true">
+					{value === "true" ? t("rows.booleanTrue") : t("rows.booleanUnset")}
+				</span>
 			</span>
 		);
 	}
@@ -118,7 +120,7 @@ function Cell({
  * is least guessable.
  */
 export default function RowsEditor({ field }: RowsEditorProps) {
-	const { t } = useI18n();
+	const t = useT();
 	const scope = useId();
 	const rows = useSelector(
 		generatorStore,
@@ -130,7 +132,7 @@ export default function RowsEditor({ field }: RowsEditorProps) {
 		<div className="rows-editor">
 			{rows.length === 0 ? (
 				<Text variant="secondary" size="sm">
-					{t("rows.noEntries")}
+					{t("rows.empty")}
 				</Text>
 			) : null}
 

@@ -7,6 +7,8 @@ import { applyPresets, createInitialStates, PRESETS } from "#/docker/presets";
 import { buildCurlScript } from "#/docker/request";
 import { validate } from "#/docker/validate";
 import { toYaml } from "#/docker/yaml";
+import type { Locale } from "#/i18n/locale";
+import { translator } from "#/i18n/messages";
 
 export type OutputFormat = "json" | "yaml" | "curl";
 
@@ -173,6 +175,11 @@ export const generatorStore = new Store(initialState(), ({ setState }) => ({
 /**
  * Derived values. `createAtom` tracks the store reads inside the callback, so
  * these recompute only when the underlying field states actually change.
+ *
+ * The JSON and YAML outputs are language-independent, so those atoms exist
+ * once. The two that contain prose — the review findings and the curl comments
+ * — are built per locale, because rebuilding them on every render would make
+ * their identity churn and drag the whole output panel along with it.
  */
 export const specAtom = createAtom(() =>
 	buildServiceSpec(generatorStore.get().states),
@@ -182,25 +189,52 @@ export const requestOptionsAtom = createAtom(() =>
 	buildRequestOptions(generatorStore.get().states),
 );
 
-export const issuesAtom = createAtom(() =>
-	validate(generatorStore.get().states),
-);
+const ISSUES_ATOMS = new Map<Locale, ReturnType<typeof createIssuesAtom>>();
 
-export const outputAtom = createAtom(() => {
-	const format = generatorStore.get().format;
-	const spec = specAtom.get();
+function createIssuesAtom(locale: Locale) {
+	const t = translator(locale);
+	return createAtom(() => validate(generatorStore.get().states, t));
+}
 
-	switch (format) {
-		case "yaml":
-			return { language: "yaml", text: toYaml(spec) };
-		case "curl":
-			return {
-				language: "bash",
-				text: buildCurlScript(spec, requestOptionsAtom.get()),
-			};
-		default:
-			return { language: "json", text: `${JSON.stringify(spec, null, 2)}\n` };
-	}
-});
+export function issuesAtomFor(locale: Locale) {
+	const cached = ISSUES_ATOMS.get(locale);
+	if (cached) return cached;
+	const atom = createIssuesAtom(locale);
+	ISSUES_ATOMS.set(locale, atom);
+	return atom;
+}
+
+const OUTPUT_ATOMS = new Map<Locale, ReturnType<typeof createOutputAtom>>();
+
+function createOutputAtom(locale: Locale) {
+	const t = translator(locale);
+	return createAtom(() => {
+		const format = generatorStore.get().format;
+		const spec = specAtom.get();
+
+		switch (format) {
+			case "yaml":
+				return { language: "yaml", text: toYaml(spec) };
+			case "curl":
+				return {
+					language: "bash",
+					text: buildCurlScript(spec, requestOptionsAtom.get(), t),
+				};
+			default:
+				return {
+					language: "json",
+					text: `${JSON.stringify(spec, null, 2)}\n`,
+				};
+		}
+	});
+}
+
+export function outputAtomFor(locale: Locale) {
+	const cached = OUTPUT_ATOMS.get(locale);
+	if (cached) return cached;
+	const atom = createOutputAtom(locale);
+	OUTPUT_ATOMS.set(locale, atom);
+	return atom;
+}
 
 export const presetById = new Map(PRESETS.map((preset) => [preset.id, preset]));

@@ -1,11 +1,11 @@
 import { Text } from "@cloudflare/kumo";
 import { GithubLogoIcon, XLogoIcon } from "@phosphor-icons/react";
+import { useT } from "#/i18n/locale-context";
 import { AUTHOR_X_URL, PROJECT_GITHUB_URL } from "#/site-links";
-import { useI18n } from "../i18n";
 
 export default function Footer() {
+	const t = useT();
 	const year = new Date().getFullYear();
-	const { t } = useI18n();
 
 	return (
 		<footer className="footer">
@@ -23,7 +23,7 @@ export default function Footer() {
 						rel="noreferrer"
 						className="footer__link"
 					>
-						<span className="visually-hidden">{t("nav.followX")}</span>
+						<span className="visually-hidden">{t("header.followX")}</span>
 						<XLogoIcon size={24} aria-hidden="true" />
 					</a>
 					<a
@@ -32,7 +32,7 @@ export default function Footer() {
 						rel="noreferrer"
 						className="footer__link"
 					>
-						<span className="visually-hidden">{t("nav.github")}</span>
+						<span className="visually-hidden">{t("header.github")}</span>
 						<GithubLogoIcon size={24} aria-hidden="true" />
 					</a>
 				</div>
